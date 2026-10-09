@@ -55,7 +55,7 @@ class TraineeResultController extends Controller
         $avgTime = TraineeResult::avg('completion_time') ?? 0;
         $totalHazardsFound = TraineeResult::sum('hazards_found');
 
-        return view(' dashboard', compact(
+        return view('dashboard', compact(
             'records', 
             'totalSessions', 
             'avgScore', 

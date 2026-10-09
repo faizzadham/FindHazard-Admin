@@ -9,69 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #08090d; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
+    <!-- Dashboard Stylesheet -->
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
-        .glass-sheet {
-            background: rgba(15, 17, 26, 0.85);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-        }
-
-        .glass-card {
-            background: rgba(22, 25, 38, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            transition: all 0.25s ease;
-        }
-
-        .glass-card:hover {
-            border-color: rgba(245, 158, 11, 0.35);
-            box-shadow: 0 16px 36px rgba(245, 158, 11, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .glass-pill {
-            background: rgba(245, 158, 11, 0.12);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            backdrop-filter: blur(8px);
-        }
-
-        .glass-input {
-            background: rgba(10, 12, 18, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-input:focus { border-color: rgba(245, 158, 11, 0.5); }
-
-        .iso-scene { perspective: 800px; }
-        .iso-cube-wrap { transform-style: preserve-3d; transform: rotateX(58deg) rotateZ(45deg); }
-        .cube-face {
-            position: absolute; width: 72px; height: 72px;
-            background: rgba(245, 158, 11, 0.18);
-            border: 1.5px solid rgba(245, 158, 11, 0.7);
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 0 15px rgba(245, 158, 11, 0.25);
-        }
-        .cube-face-front  { transform: translateZ(36px); }
-        .cube-face-back   { transform: rotateY(180deg) translateZ(36px); }
-        .cube-face-right  { transform: rotateY(90deg) translateZ(36px); }
-        .cube-face-left   { transform: rotateY(-90deg) translateZ(36px); }
-        .cube-face-top    { transform: rotateX(90deg) translateZ(36px); }
-        .cube-face-bottom { transform: rotateX(-90deg) translateZ(36px); }
-        .inner-core {
-            position: absolute; top: 20px; left: 20px; width: 32px; height: 32px; border-radius: 6px;
-            background: #fef08a; box-shadow: 0 0 35px 12px rgba(245, 158, 11, 0.95);
-            animation: pulse-core 2.4s ease-in-out infinite alternate;
-        }
-        @keyframes pulse-core { from { transform: scale(0.9); } to { transform: scale(1.15); filter: brightness(1.4); } }
-
-        .app-view { display: none; }
-        .app-view.active { display: block; }
-    </style>
 </head>
 <body class="text-slate-100 min-h-screen relative overflow-x-hidden p-4 sm:p-7 flex flex-col items-center justify-center selection:bg-amber-400 selection:text-neutral-950">
 
