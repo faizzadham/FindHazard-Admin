@@ -1,14 +1,9 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 class TraineeResult extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'username',
         'score',
@@ -16,5 +11,12 @@ class TraineeResult extends Model
         'hazards_missed',
         'completion_time',
         'performance_rating',
+        'found_hazards',
+        'missed_hazards',
+    ];
+
+    protected $casts = [
+        'found_hazards' => 'array',
+        'missed_hazards' => 'array',
     ];
 }

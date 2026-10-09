@@ -101,9 +101,5 @@ body {
 
 /* App Tab View Visibility */
 .app-view {
-    display: none;
-}
-
-.app-view.active {
     display: block;
 }

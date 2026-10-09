@@ -45,11 +45,10 @@ class TraineeResultController extends Controller
         ], 201);
     }
 
-    // Web Route: Renders the Admin Performance Dashboard
+    // Web Route: Renders Operations Command Center (Overview Page)
     public function index()
     {
         $records = TraineeResult::latest()->paginate(12);
-        
         $totalSessions = TraineeResult::count();
         $avgScore = TraineeResult::avg('score') ?? 0;
         $avgTime = TraineeResult::avg('completion_time') ?? 0;
@@ -62,5 +61,37 @@ class TraineeResultController extends Controller
             'avgTime', 
             'totalHazardsFound'
         ));
+    }
+
+    // Web Route: Renders Live VR Session Monitor Page
+    public function monitor()
+    {
+        return view('monitor');
+    }
+
+    // Web Route: Renders Trainee Directory Page
+    public function directory()
+    {
+        $records = TraineeResult::latest()->get();
+        return view('directory', compact('records'));
+    }
+
+    // Web Route: Renders Trainee Analysis & Checkpoints Page
+    public function analysis(Request $request)
+    {
+        $traineeId = $request->query('trainee', 'qq');
+        return view('analysis', compact('traineeId'));
+    }
+
+    // Web Route: Renders Experience Analytics Page
+    public function analytics()
+    {
+        return view('analytics');
+    }
+
+    // Web Route: Renders Supervisor Login Page
+    public function login()
+    {
+        return view('login');
     }
 }
