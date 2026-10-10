@@ -72,6 +72,9 @@ class TraineeResultController extends Controller
             'is_certified' => $isCertified,
         ]);
 
+        // Keep active trainee telemetry synced for VR monitor
+        \Illuminate\Support\Facades\Cache::put('active_vr_trainee', $record->toArray(), now()->addHours(2));
+
         return response()->json([
             'status' => 'success',
             'message' => 'Trainee session evaluated and recorded successfully',
@@ -100,7 +103,96 @@ class TraineeResultController extends Controller
     // Web Route: Renders Live VR Session Monitor Page
     public function monitor()
     {
-        return view('monitor');
+        $activeTrainee = \Illuminate\Support\Facades\Cache::get('active_vr_trainee');
+        $warehouseAreas = $this->getWarehouseAreasConfig();
+
+        $allHazards = [];
+        foreach ($warehouseAreas as $area) {
+            foreach ($area['hazards'] as $h) {
+                $allHazards[] = [
+                    'id' => $h['id'],
+                    'name' => $h['name'],
+                    'area_name' => $area['name'],
+                    'area_icon' => $area['icon'],
+                    'severity' => $h['severity'],
+                    'aliases' => $h['aliases'] ?? [],
+                ];
+            }
+        }
+
+        return view('monitor', compact('activeTrainee', 'allHazards'));
+    }
+
+    // API Route: Live Monitor Telemetry Polling
+    public function liveMonitorStatus(Request $request)
+    {
+        $username = $request->query('username');
+        if ($username && $username !== 'none') {
+            $record = TraineeResult::where('username', $username)->latest()->first();
+            return response()->json([
+                'status' => 'success',
+                'has_active' => (bool) $record,
+                'record' => $record,
+                'timestamp' => now()->timestamp,
+            ]);
+        }
+
+        $activeTrainee = \Illuminate\Support\Facades\Cache::get('active_vr_trainee');
+
+        return response()->json([
+            'status' => 'success',
+            'has_active' => !empty($activeTrainee),
+            'record' => $activeTrainee,
+            'timestamp' => now()->timestamp,
+        ]);
+    }
+
+    // API Route: Set or update active trainee in VR
+    public function setActiveTrainee(Request $request)
+    {
+        $payload = $request->json()->all() ?: json_decode($request->getContent(), true) ?: $request->all();
+        $username = trim($payload['username'] ?? $request->input('username', ''));
+        if (empty($username) || $username === 'none') {
+            \Illuminate\Support\Facades\Cache::forget('active_vr_trainee');
+            return response()->json([
+                'status' => 'cleared',
+                'has_active' => false,
+                'record' => null,
+            ]);
+        }
+
+        $existing = TraineeResult::where('username', $username)->latest()->first();
+
+        $activeData = [
+            'username' => $username,
+            'score' => (float) ($payload['score'] ?? $request->input('score', $existing ? $existing->score : 0.0)),
+            'hazards_found' => (int) ($payload['hazards_found'] ?? $request->input('hazards_found', $existing ? $existing->hazards_found : 0)),
+            'hazards_missed' => (int) ($payload['hazards_missed'] ?? $request->input('hazards_missed', $existing ? $existing->hazards_missed : 13)),
+            'wrong_clicks' => (int) ($payload['wrong_clicks'] ?? $request->input('wrong_clicks', $existing ? $existing->wrong_clicks : 0)),
+            'found_hazards' => $payload['found_hazards'] ?? $request->input('found_hazards', $existing ? $existing->found_hazards : []),
+            'completion_time' => (float) ($payload['completion_time'] ?? $request->input('completion_time', $existing ? $existing->completion_time : 0)),
+            'active_at' => now()->toIso8601String(),
+        ];
+
+        \Illuminate\Support\Facades\Cache::put('active_vr_trainee', $activeData, now()->addHours(2));
+
+        return response()->json([
+            'status' => 'success',
+            'has_active' => true,
+            'record' => $activeData,
+        ]);
+    }
+
+    // API Route: Clear active trainee in VR
+    public function clearActiveTrainee()
+    {
+        \Illuminate\Support\Facades\Cache::forget('active_vr_trainee');
+
+        return response()->json([
+            'status' => 'cleared',
+            'has_active' => false,
+            'record' => null,
+        ]);
     }
 
     // Web Route: Renders Trainee Directory Page (Leaderboard & Telemetry)

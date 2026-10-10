@@ -533,89 +533,6 @@ function exportPdfCertificate() {
     w.document.close();
 }
 
-// VR Monitor Canvas Setup
-let canvas = null;
-let ctx = null;
-let mouseX = null, mouseY = null;
-
-function setupCanvas() {
-    canvas = document.getElementById('vrMonitorCanvas');
-    if (!canvas) return;
-    ctx = canvas.getContext('2d');
-
-    resizeCanvas();
-
-    canvas.addEventListener('mousemove', e => {
-        const r = canvas.getBoundingClientRect();
-        mouseX = e.clientX - r.left; mouseY = e.clientY - r.top;
-    });
-
-    canvas.addEventListener('click', e => {
-        const r = canvas.getBoundingClientRect();
-        const cx = e.clientX - r.left; const cy = e.clientY - r.top;
-        const boxX = canvas.width * 0.65; const boxY = canvas.height * 0.48;
-        const hit = Math.hypot(cx - boxX, cy - boxY) < 55;
-
-        if (hit) {
-            hazardHitsCount++;
-            clickEventFeed.unshift({ time: 'NOW', label: '480V Arc Box', type: 'hit', points: '+10 PTS' });
-            showToast('Hazard Hit!', '480V Junction Identified (+10)', '✅');
-        } else {
-            misclicksCount++;
-            clickEventFeed.unshift({ time: 'NOW', label: 'Safe Distractor', type: 'misclick', points: '0 PTS' });
-            showToast('Misclick', 'Safe element triggered.', '⚠️');
-        }
-        renderClickEventFeed();
-    });
-
-    drawMonitor();
-}
-
-function resizeCanvas() {
-    if (!canvas) return;
-    const r = canvas.getBoundingClientRect();
-    if (r.width > 0) { canvas.width = r.width; canvas.height = r.height; }
-}
-
-function drawMonitor() {
-    if (!canvas || !ctx) return;
-    const w = canvas.width, h = canvas.height;
-    if (w > 0 && h > 0) {
-        ctx.fillStyle = '#07080c';
-        ctx.fillRect(0, 0, w, h);
-
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-        for (let i = 0; i <= w; i += w / 7) {
-            ctx.beginPath(); ctx.moveTo(w / 2, h * 0.42); ctx.lineTo(i, h); ctx.stroke();
-        }
-
-        // 480V Hazard Box
-        const bx = w * 0.65, by = h * 0.48;
-        ctx.fillStyle = '#1c1f2e'; ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
-        ctx.fillRect(bx - 35, by - 40, 70, 80); ctx.strokeRect(bx - 35, by - 40, 70, 80);
-        ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 11px JetBrains Mono';
-        ctx.fillText('⚡ 480V', bx - 22, by - 15);
-
-        // Tool Rack Safe Distractor
-        const dx = w * 0.28, dy = h * 0.52;
-        ctx.fillStyle = '#141824'; ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.fillRect(dx - 30, dy - 30, 60, 60); ctx.strokeRect(dx - 30, dy - 30, 60, 60);
-        ctx.fillStyle = '#10b981'; ctx.font = '9px JetBrains Mono';
-        ctx.fillText('[SAFE]', dx - 16, dy + 5);
-
-        // Raycast
-        const tx = mouseX !== null ? mouseX : bx;
-        const ty = mouseY !== null ? mouseY : by;
-        ctx.strokeStyle = '#f59e0b'; ctx.beginPath(); ctx.moveTo(w * 0.85, h); ctx.lineTo(tx, ty); ctx.stroke();
-
-        ctx.strokeStyle = '#10b981'; ctx.strokeRect(tx - 35, ty - 25, 70, 50);
-        ctx.fillStyle = '#10b981'; ctx.fillText('[AIM LOCK]', tx - 30, ty - 30);
-    }
-    requestAnimationFrame(drawMonitor);
-}
-
-window.addEventListener('resize', resizeCanvas);
-
 // Automatic Page Initialization based on current page elements
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Overview Page
@@ -626,12 +543,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Directory Page
     if (document.getElementById('traineeTableBody')) {
         applyDirectoryFilters();
-    }
-
-    // 3. Live VR Monitor Page
-    if (document.getElementById('vrMonitorCanvas')) {
-        setupCanvas();
-        startActiveSessionTimer();
-        renderClickEventFeed();
     }
 });
