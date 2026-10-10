@@ -1,5 +1,9 @@
-<!-- TAB 4: ANALYSIS -->
 <div id="view-dossier" class="app-view space-y-5">
+@if(isset($record))
+    <script>
+        window.currentTraineeRecord = @json($record);
+    </script>
+@endif
     <div class="glass-card rounded-3xl p-5 border-amber-500/20 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/5">
             <div>

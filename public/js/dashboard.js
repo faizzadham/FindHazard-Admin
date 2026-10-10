@@ -2,13 +2,38 @@
  * FindHazard VR — Supervisor Glass Dashboard Client Logic
  */
 
-const trainees = [
+const defaultTrainees = [
     { id: 'qq', experience: 'Manufacturing', score: 100, found: 10, missed: 0, time: '47.9s', rating: 'Locked In', date: '01 Oct 2026, 06:18', dateShort: '01 Oct 2026', notes: 'Detected 480V arc-flash hazard under 5.1s.', missedIndices: [] },
     { id: 'Ahmad_Rizal', experience: 'Logistics Center', score: 90, found: 9, missed: 1, time: '52.3s', rating: 'Great', date: '01 Oct 2026, 05:42', dateShort: '01 Oct 2026', notes: 'Overlooked overhead crane fray.', missedIndices: [7] },
     { id: 'Sarah_Tan', experience: 'Manufacturing', score: 90, found: 9, missed: 1, time: '54.1s', rating: 'Great', date: '01 Oct 2026, 04:15', dateShort: '01 Oct 2026', notes: 'Missed blocked extinguisher in corridor 3.', missedIndices: [4] },
     { id: 'Danial_Haziq', experience: 'Retail', score: 80, found: 8, missed: 2, time: '61.5s', rating: 'Valid Effort', date: '30 Sep 2026, 17:30', dateShort: '30 Sep 2026', notes: 'Missed 480V enclosure latch.', missedIndices: [2, 8] },
     { id: 'Nurul_Ain', experience: 'Logistics Center', score: 70, found: 7, missed: 3, time: '68.2s', rating: 'Cooked', date: '30 Sep 2026, 15:10', dateShort: '30 Sep 2026', notes: 'Retraining recommended for GHS symbols.', missedIndices: [2, 5, 9] }
 ];
+
+let trainees = [...defaultTrainees];
+
+function syncTraineesFromDB() {
+    if (window.dbTrainees && Array.isArray(window.dbTrainees) && window.dbTrainees.length > 0) {
+        trainees = window.dbTrainees.map(r => {
+            const d = new Date(r.created_at);
+            const dateStr = !isNaN(d) ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent';
+            const dateShortStr = !isNaN(d) ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Today';
+            return {
+                id: r.username,
+                experience: 'VR Inspection',
+                score: r.score,
+                found: r.hazards_found,
+                missed: r.hazards_missed,
+                time: (r.completion_time || 0) + 's',
+                rating: r.performance_rating || 'Locked In',
+                date: dateStr,
+                dateShort: dateShortStr,
+                notes: `VR Headset telemetry. Found: ${(r.found_hazards || []).join(', ') || 'N/A'}. Missed: ${(r.missed_hazards || []).join(', ') || 'None'}`,
+                missedIndices: []
+            };
+        });
+    }
+}
 
 const scenarioCheckpoints = [
     { id: 1, name: 'Unguarded Conveyor Belt', cat: 'Mechanical Hazard', time: '00:03.4' },
@@ -57,6 +82,7 @@ function handleGlobalSearch(val) {
 }
 
 function applyDirectoryFilters() {
+    syncTraineesFromDB();
     const searchVal = document.getElementById('directorySearchInput')?.value.toLowerCase().trim() || '';
     const dateVal = document.getElementById('directoryDateFilter')?.value || 'all';
     const expVal = document.getElementById('directoryExpFilter')?.value || 'all';
@@ -98,7 +124,26 @@ function applyDirectoryFilters() {
 }
 
 function loadTraineeDossier(id) {
-    const trainee = trainees.find(t => t.id === id) || trainees[0];
+    syncTraineesFromDB();
+    let trainee = trainees.find(t => t.id === id);
+    if (!trainee && window.currentTraineeRecord) {
+        const r = window.currentTraineeRecord;
+        const d = new Date(r.created_at);
+        const dateStr = !isNaN(d) ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Verified';
+        trainee = {
+            id: r.username,
+            experience: 'VR Inspection',
+            score: r.score,
+            found: r.hazards_found,
+            missed: r.hazards_missed,
+            time: (r.completion_time || 0) + 's',
+            rating: r.performance_rating || 'Locked In',
+            date: dateStr,
+            notes: `VR Headset telemetry. Found: ${(r.found_hazards || []).join(', ') || 'N/A'}. Missed: ${(r.missed_hazards || []).join(', ') || 'None'}`,
+            missedIndices: []
+        };
+    }
+    if (!trainee) trainee = trainees[0];
     selectedTrainee = trainee;
 
     const titleEl = document.getElementById('dossierTitle');
@@ -131,6 +176,7 @@ function loadTraineeDossier(id) {
 }
 
 function renderIncomingRunsLog() {
+    syncTraineesFromDB();
     const container = document.getElementById('incomingRunsContainer');
     if (!container) return;
     container.innerHTML = trainees.slice(0, 4).map(run => `

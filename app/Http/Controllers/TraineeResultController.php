@@ -16,6 +16,8 @@ class TraineeResultController extends Controller
             'hazards_found' => 'required|integer',
             'hazards_missed' => 'required|integer',
             'completion_time' => 'required|numeric',
+            'found_hazards' => 'nullable',
+            'missed_hazards' => 'nullable',
         ]);
 
         $totalHazards = $validated['hazards_found'] + $validated['hazards_missed'];
@@ -29,11 +31,23 @@ class TraineeResultController extends Controller
             default            => 'Underperforming',
         };
 
+        $foundHazards = $request->input('found_hazards');
+        if (is_string($foundHazards)) {
+            $foundHazards = json_decode($foundHazards, true) ?? explode(',', $foundHazards);
+        }
+
+        $missedHazards = $request->input('missed_hazards');
+        if (is_string($missedHazards)) {
+            $missedHazards = json_decode($missedHazards, true) ?? explode(',', $missedHazards);
+        }
+
         $record = TraineeResult::create([
             'username' => $validated['username'],
             'score' => $validated['score'],
             'hazards_found' => $validated['hazards_found'],
             'hazards_missed' => $validated['hazards_missed'],
+            'found_hazards' => $foundHazards,
+            'missed_hazards' => $missedHazards,
             'completion_time' => $validated['completion_time'],
             'performance_rating' => $rating,
         ]);

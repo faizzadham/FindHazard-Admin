@@ -2,6 +2,11 @@
 <!-- 4. TRAINEE DIRECTORY (/trainees)                  -->
 <!-- ======================================================== -->
 <div id="view-directory" class="app-view space-y-5">
+@if(isset($records))
+    <script>
+        window.dbTrainees = @json($records);
+    </script>
+@endif
 
     <!-- Header with route badge & live match counter -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2 border-b border-white/5">
