@@ -9,8 +9,10 @@ class TraineeResult extends Model
         'score',
         'hazards_found',
         'hazards_missed',
+        'wrong_clicks',
         'completion_time',
         'performance_rating',
+        'is_certified',
         'found_hazards',
         'missed_hazards',
     ];
@@ -18,5 +20,11 @@ class TraineeResult extends Model
     protected $casts = [
         'found_hazards' => 'array',
         'missed_hazards' => 'array',
+        'is_certified' => 'boolean',
+        'score' => 'float',
+        'completion_time' => 'float',
+        'wrong_clicks' => 'integer',
+        'hazards_found' => 'integer',
+        'hazards_missed' => 'integer',
     ];
 }

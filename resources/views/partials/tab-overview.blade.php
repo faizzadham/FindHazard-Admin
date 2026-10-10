@@ -2,23 +2,63 @@
 <div id="tab-overview" class="tab-content space-y-6">
 
     <!-- KPI Metric Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
-            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Total Sessions</span>
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Total Trainees</span>
             <div class="text-3xl font-black text-white mt-1 font-['JetBrains_Mono']">{{ $totalSessions ?? 0 }}</div>
             <span class="text-[11px] text-slate-500 mt-1 block">Completed VR inspections</span>
         </div>
 
-        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
-            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Average Final Score</span>
-            <div class="text-3xl font-black text-amber-400 mt-1 font-['JetBrains_Mono']">{{ number_format($avgScore ?? 0, 0) }} pts</div>
-            <span class="text-[11px] text-slate-500 mt-1 block">Cohort mean inspection points</span>
+        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md flex items-center justify-between">
+            <div>
+                <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Average Final Score</span>
+                <div class="text-3xl font-black text-amber-400 mt-1 font-['JetBrains_Mono']">{{ number_format($avgScore ?? 0, 1) }}%</div>
+                <span class="text-[11px] text-slate-500 mt-1 block">Mean inspection percentage</span>
+            </div>
+            <!-- Visual Score Ring -->
+            <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                <svg class="w-14 h-14 -rotate-90 transform" viewBox="0 0 36 36">
+                    <path
+                        class="text-white/10"
+                        stroke="currentColor"
+                        stroke-width="3.2"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    @php
+                        $avgScVal = max(0, min(100, $avgScore ?? 0));
+                        $avgScOffset = 100 - $avgScVal;
+                        $avgScColor = $avgScVal >= 80 ? 'text-amber-400' : ($avgScVal >= 60 ? 'text-yellow-400' : 'text-rose-400');
+                    @endphp
+                    <path
+                        class="{{ $avgScColor }} transition-all duration-700 ease-out"
+                        stroke="currentColor"
+                        stroke-width="3.5"
+                        stroke-dasharray="100, 100"
+                        stroke-dashoffset="{{ $avgScOffset }}"
+                        stroke-linecap="round"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                </svg>
+                <span class="absolute text-[11px] font-mono font-black text-white">
+                    {{ (int) floor($avgScore ?? 0) }}%
+                </span>
+            </div>
         </div>
 
         <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Avg Completion Time</span>
-            <div class="text-3xl font-black text-sky-400 mt-1 font-['JetBrains_Mono']">{{ number_format($avgTime ?? 0, 1) }}s</div>
-            <span class="text-[11px] text-slate-500 mt-1 block">Mean warehouse scan velocity</span>
+            <div class="text-3xl font-black text-sky-400 mt-1 font-['JetBrains_Mono']">{{ floor(($avgTime ?? 0) / 60) }}m {{ sprintf('%02ds', round(fmod($avgTime ?? 0, 60))) }}</div>
+            <span class="text-[11px] text-slate-500 mt-1 block">Average warehouse inspection time</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Certified Trainees</span>
+            <div class="text-3xl font-black text-emerald-400 mt-1 font-['JetBrains_Mono']">
+                {{ \App\Models\TraineeResult::where('is_certified', true)->count() }}
+            </div>
+            <span class="text-[11px] text-slate-500 mt-1 block">Score &ge; 80.0% qualification rate</span>
         </div>
     </div>
 
@@ -27,10 +67,10 @@
         <div class="p-4 sm:p-5 border-b border-white/10 flex justify-between items-center">
             <div>
                 <h3 class="text-sm font-bold tracking-wider uppercase text-amber-400">Trainee Session Records</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Live warehouse inspection logs and hazard detection telemetry</p>
+                <p class="text-xs text-slate-400 mt-0.5">Live warehouse inspection logs &bull; 13 Total Hazards with wrong-click telemetry</p>
             </div>
             <span class="text-xs font-mono bg-white/5 border border-white/10 text-slate-300 px-3 py-1 rounded-full">
-                {{ $records->total() ?? 0 }} Total Entries
+                5 Recent Sessions &bull; {{ $totalSessions ?? count($records) }} Total
             </span>
         </div>
 
@@ -41,81 +81,128 @@
                         <th class="p-3.5">Trainee Username</th>
                         <th class="p-3.5">Score</th>
                         <th class="p-3.5">Time</th>
-                        <th class="p-3.5 min-w-[220px]">Hazards Identified (Found)</th>
-                        <th class="p-3.5 min-w-[220px]">Hazards Overlooked (Missed)</th>
-                        <th class="p-3.5">Evaluation</th>
-                        <th class="p-3.5">Date</th>
+                        <th class="p-3.5 text-center">Hazards Found</th>
+                        <th class="p-3.5 text-center">Hazards Missed</th>
+                        <th class="p-3.5 text-center">Wrong Clicks</th>
+                        <th class="p-3.5 text-center">Certificate</th>
+                        <th class="p-3.5">Date & Time</th>
+                        <th class="p-3.5 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/5 text-slate-300">
                     @forelse($records as $record)
                         <tr class="hover:bg-white/[0.03] transition-colors">
-                            <td class="p-3.5 font-semibold text-white whitespace-nowrap">
+                            <td class="p-3.5 font-semibold text-white whitespace-nowrap font-mono">
                                 {{ $record->username }}
                             </td>
-                            <td class="p-3.5 font-bold text-amber-400 font-['JetBrains_Mono'] whitespace-nowrap">
-                                {{ $record->score }} pts
-                            </td>
-                            <td class="p-3.5 font-mono text-slate-300 whitespace-nowrap">
-                                {{ number_format($record->completion_time, 1) }}s
-                            </td>
-
-                            <!-- Found Hazards (Green Badges) -->
-                            <td class="p-3.5">
-                                <div class="flex flex-wrap gap-1.5">
-                                    @if(!empty($record->found_hazards))
-                                        @foreach($record->found_hazards as $found)
-                                            <span class="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                                                <svg class="w-3 h-3 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                {{ $found }}
-                                            </span>
-                                        @endforeach
-                                    @else
-                                        <span class="text-xs text-slate-500 italic">None identified</span>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Missed Hazards (Red Badges) -->
-                            <td class="p-3.5">
-                                <div class="flex flex-wrap gap-1.5">
-                                    @if(!empty($record->missed_hazards))
-                                        @foreach($record->missed_hazards as $missed)
-                                            <span class="inline-flex items-center gap-1 bg-rose-500/10 text-rose-400 border border-rose-500/25 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                                                <svg class="w-3 h-3 text-rose-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                {{ $missed }}
-                                            </span>
-                                        @endforeach
-                                    @else
-                                        <span class="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-0.5 rounded-full font-semibold">
-                                            ✓ Flawless Scan (Zero Missed)
-                                        </span>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Performance Rating Badge -->
+                            <!-- Visual Score Ring & Percentage Score -->
                             <td class="p-3.5 whitespace-nowrap">
-                                <span class="px-2.5 py-1 text-xs font-bold rounded-full inline-block
-                                    @if($record->performance_rating === 'Locked In') bg-emerald-500/15 text-emerald-300 border border-emerald-500/30
-                                    @elseif($record->performance_rating === 'Great') bg-sky-500/15 text-sky-300 border border-sky-500/30
-                                    @elseif($record->performance_rating === 'Valid Effort') bg-amber-500/15 text-amber-300 border border-amber-500/30
-                                    @else bg-rose-500/15 text-rose-300 border border-rose-500/30 @endif">
-                                    {{ $record->performance_rating }}
+                                 <div class="flex items-center gap-3">
+                                     <!-- Visual Score Ring -->
+                                     <div class="relative w-9 h-9 shrink-0 flex items-center justify-center">
+                                         <svg class="w-9 h-9 -rotate-90 transform" viewBox="0 0 36 36">
+                                             <path
+                                                 class="text-white/10"
+                                                 stroke="currentColor"
+                                                 stroke-width="3"
+                                                 fill="none"
+                                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                             />
+                                             @php
+                                                 $scVal = max(0, min(100, $record->score));
+                                                 $scOffset = 100 - $scVal;
+                                                 $scColor = $scVal >= 90 ? 'text-emerald-400' : ($scVal >= 80 ? 'text-teal-400' : ($scVal >= 60 ? 'text-amber-400' : 'text-rose-400'));
+                                             @endphp
+                                             <path
+                                                 class="{{ $scColor }} transition-all duration-700 ease-out"
+                                                 stroke="currentColor"
+                                                 stroke-width="3.2"
+                                                 stroke-dasharray="100, 100"
+                                                 stroke-dashoffset="{{ $scOffset }}"
+                                                 stroke-linecap="round"
+                                                 fill="none"
+                                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                             />
+                                         </svg>
+                                         <span class="absolute text-[8.5px] font-mono font-black text-slate-200">
+                                             {{ (int) floor($record->score) }}
+                                         </span>
+                                     </div>
+
+                                     <!-- Percentage Score Text -->
+                                     <span class="font-extrabold font-['JetBrains_Mono'] text-sm {{ $scVal >= 80 ? 'text-emerald-400' : ($scVal >= 60 ? 'text-amber-400' : 'text-rose-400') }}">
+                                         {{ number_format($record->score, 1) }}%
+                                     </span>
+                                 </div>
+                            </td>
+                            <td class="p-3.5 font-mono text-sky-400 font-bold whitespace-nowrap">
+                                {{ floor($record->completion_time / 60) }}m {{ sprintf('%02ds', round(fmod($record->completion_time, 60))) }}
+                            </td>
+
+                            <!-- Hazards Identified (Found out of 13 in Green) -->
+                            <td class="p-3.5 text-center whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-black font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm shadow-emerald-500/10">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    {{ $record->hazards_found }}/13
                                 </span>
                             </td>
 
-                            <td class="p-3.5 text-xs text-slate-400 whitespace-nowrap font-mono">
-                                {{ $record->created_at->format('d M, H:i') }}
+                            <!-- Hazards Missed (Missed out of 13 in Red) -->
+                            <td class="p-3.5 text-center whitespace-nowrap">
+                                <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-black font-mono bg-rose-500/15 text-rose-400 border border-rose-500/30 shadow-sm shadow-rose-500/10">
+                                    <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    {{ $record->hazards_missed }}/13
+                                </span>
+                            </td>
+
+                            <!-- Wrong Clicks Penalty -->
+                            <td class="p-3.5 text-center whitespace-nowrap">
+                                @if($record->wrong_clicks > 0)
+                                    <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="-{{ $record->wrong_clicks * 5 }}% Penalty applied">
+                                        {{ $record->wrong_clicks }} (-{{ $record->wrong_clicks * 5 }}%)
+                                    </span>
+                                @else
+                                    <span class="text-xs font-mono text-slate-500">0</span>
+                                @endif
+                            </td>
+
+                            <!-- Certificate Qualification -->
+                            <td class="p-3.5 text-center whitespace-nowrap">
+                                @if($record->is_certified)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                        Qualified
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                                        Retest (&lt;80%)
+                                    </span>
+                                @endif
+                            </td>
+
+                            <!-- Standard Time Date -->
+                            <td class="p-3.5 text-xs text-slate-300 whitespace-nowrap font-mono" title="{{ $record->created_at->timezone('Asia/Kuala_Lumpur')->format('Y-m-d H:i:s') }}">
+                                {{ $record->created_at->timezone('Asia/Kuala_Lumpur')->format('d M Y, h:i A') }}
+                            </td>
+
+                            <!-- Action / View Profile Button -->
+                            <td class="p-3.5 text-center whitespace-nowrap">
+                                <a href="{{ route('dashboard.trainee', $record->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-400 text-amber-300 hover:text-neutral-950 font-mono font-bold text-xs border border-amber-500/30 transition shadow-sm hover:shadow-amber-500/20 cursor-pointer" title="View {{ $record->username }}'s Personal Profile & Zone Breakdown">
+                                    <span>Profile</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-8 text-center text-slate-500">
+                            <td colspan="9" class="p-8 text-center text-slate-500">
                                 No trainee training sessions logged yet. Awaiting VR completions...
                             </td>
                         </tr>
@@ -124,10 +211,11 @@
             </table>
         </div>
 
-        @if($records->hasPages())
-            <div class="p-4 border-t border-white/10">
-                {{ $records->links() }}
-            </div>
-        @endif
+        <div class="p-4 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-400">
+            <span class="font-mono">Showing 5 most recent trainee inspection sessions</span>
+            <a href="{{ route('dashboard.directory') }}" class="text-amber-400 hover:text-amber-300 font-semibold transition flex items-center gap-1 hover:underline">
+                View All Records in Directory &rarr;
+            </a>
+        </div>
     </div>
 </div>

@@ -12,5 +12,8 @@ Route::get('/dashboard', [TraineeResultController::class, 'index']);
 Route::get('/overview', [TraineeResultController::class, 'index']);
 Route::get('/monitor', [TraineeResultController::class, 'monitor'])->name('dashboard.monitor');
 Route::get('/directory', [TraineeResultController::class, 'directory'])->name('dashboard.directory');
-Route::get('/analysis', [TraineeResultController::class, 'analysis'])->name('dashboard.analysis');
 Route::get('/analytics', [TraineeResultController::class, 'analytics'])->name('dashboard.analytics');
+Route::get('/guide', [TraineeResultController::class, 'guide'])->name('dashboard.guide');
+Route::get('/evaluation-guide', [TraineeResultController::class, 'guide']);
+Route::get('/trainee/{id}', [TraineeResultController::class, 'show'])->name('dashboard.trainee');
+

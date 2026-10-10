@@ -28,21 +28,14 @@
     <div id="view-dashboard" class="relative z-10 w-full max-w-[1440px] space-y-6">
 
         <!-- Master Glass Sheet -->
-        <section class="glass-sheet rounded-[2.2rem] p-6 lg:p-7 flex flex-col lg:flex-row gap-7">
+        <section class="glass-sheet rounded-[2.2rem] p-6 lg:p-8 space-y-6">
 
-            <!-- Sidebar Navigation -->
-            @include('partials.nav')
+            <!-- Top Bar Navigation Section -->
+            @include('partials.header')
 
-            <!-- Main Workspace Views -->
-            <div class="flex-1 space-y-6">
+            <!-- Page Content -->
+            @yield('content')
 
-                <!-- Top Bar -->
-                @include('partials.header')
-
-                <!-- Page Content -->
-                @yield('content')
-
-            </div>
         </section>
 
         <!-- Bottom Bar & 3D Isometric Holographic Cube -->
