@@ -27,6 +27,10 @@
                     <span class="w-2 h-2 rounded-full bg-slate-500"></span>
                     <span>AWAITING MQDH CAST</span>
                 </span>
+                <span id="liveMonitorTimerBadge" class="hidden px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="liveMonitorTimer">00:00.0</span>
+                </span>
             </div>
             <p class="text-xs text-slate-400 mt-1 font-mono">
                 Connect live Meta Quest Developer Hub (MQDH) Cast stream &bull; Real-time trainee detection telemetry
@@ -52,146 +56,132 @@
         </div>
     </div>
 
-    <!-- 2. Main Grid: Live Cast Viewport (Left) + Live Trainee & Hazard Panel (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- 2. Full-Width Live VR Monitor Viewport (Fills up space on right side) -->
+    <div class="space-y-3">
+        <div id="vrMonitorScreenContainer" class="relative bg-neutral-950 rounded-3xl overflow-hidden border border-white/10 shadow-2xl aspect-[16/9] max-h-[720px] w-full flex items-center justify-center group">
 
-        <!-- Left: Live VR Monitor Viewport (Span 8) -->
-        <div class="lg:col-span-8 space-y-3">
-            <div id="vrMonitorScreenContainer" class="relative bg-neutral-950 rounded-3xl overflow-hidden border border-white/10 shadow-2xl aspect-[16/9] flex items-center justify-center group">
+            <!-- Live WebRTC / DisplayMedia Video Player (Clean screen, edge overlays removed) -->
+            <video id="vrLiveCastVideo" autoplay playsinline muted disablepictureinpicture controlslist="nodownload nopictureinpicture" class="w-full h-full object-contain bg-black hidden"></video>
 
-                <!-- Live WebRTC / DisplayMedia Video Player -->
-                <video id="vrLiveCastVideo" autoplay playsinline muted disablepictureinpicture controlslist="nodownload nopictureinpicture" class="w-full h-full object-contain bg-black hidden"></video>
-
-                <!-- Standby / Connect Screen (Visible when not streaming) -->
-                <div id="vrCastStandbyScreen" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-5 bg-gradient-to-b from-neutral-900/90 via-neutral-950 to-neutral-950">
-                    <div class="relative">
-                        <div class="w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/10">
-                            🥽
-                        </div>
-                        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 animate-ping opacity-75"></span>
-                        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400"></span>
+            <!-- Standby / Connect Screen (Visible when not streaming) -->
+            <div id="vrCastStandbyScreen" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-5 bg-gradient-to-b from-neutral-900/90 via-neutral-950 to-neutral-950">
+                <div class="relative">
+                    <div class="w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/10">
+                        🥽
                     </div>
+                    <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 animate-ping opacity-75"></span>
+                    <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400"></span>
+                </div>
 
-                    <div class="max-w-md space-y-2">
-                        <h2 class="text-lg font-black text-white tracking-wide uppercase">
-                            Meta Quest Developer Hub Live Cast
-                        </h2>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Stream the trainee's Quest 3 headset POV directly into this dashboard using MQDH Device Cast over USB or Wi-Fi.
-                        </p>
+                <div class="max-w-md space-y-2">
+                    <h2 class="text-lg font-black text-white tracking-wide uppercase">
+                        Meta Quest Developer Hub Live Cast
+                    </h2>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Stream the trainee's Quest 3 headset POV directly into this dashboard using MQDH Device Cast over USB or Wi-Fi.
+                    </p>
+                </div>
+
+                <!-- Step-by-step Quick Guide -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left max-w-lg w-full text-[11px] font-mono">
+                    <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1">
+                        <span class="text-amber-400 font-bold block">1. Launch MQDH</span>
+                        <span class="text-slate-400 text-[10px]">Open Meta Quest Developer Hub on your PC.</span>
                     </div>
-
-                    <!-- Step-by-step Quick Guide -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left max-w-lg w-full text-[11px] font-mono">
-                        <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1">
-                            <span class="text-amber-400 font-bold block">1. Launch MQDH</span>
-                            <span class="text-slate-400 text-[10px]">Open Meta Quest Developer Hub on your PC.</span>
-                        </div>
-                        <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1">
-                            <span class="text-amber-400 font-bold block">2. Device Cast</span>
-                            <span class="text-slate-400 text-[10px]">Click Device Cast to open the Quest stream window.</span>
-                        </div>
-                        <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1">
-                            <span class="text-amber-400 font-bold block">3. Connect</span>
-                            <span class="text-slate-400 text-[10px]">Click below and select the MQDH Cast window.</span>
-                        </div>
+                    <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1">
+                        <span class="text-amber-400 font-bold block">2. Device Cast</span>
+                        <span class="text-slate-400 text-[10px]">Click Device Cast to open the Quest stream window.</span>
                     </div>
-
-                    <div class="flex items-center justify-center pt-2">
-                        <button onclick="connectMqdhCast()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 text-neutral-950 font-black text-xs transition shadow-xl shadow-amber-500/25 flex items-center gap-2 cursor-pointer">
-                            <span>🥽</span><span>Select MQDH Cast Window →</span>
-                        </button>
+                    <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1">
+                        <span class="text-amber-400 font-bold block">3. Connect</span>
+                        <span class="text-slate-400 text-[10px]">Click below and select the MQDH Cast window.</span>
                     </div>
                 </div>
 
-                <!-- HUD Overlay 1: Live Status & Timer (Top-Left) -->
-                <div class="absolute top-4 left-4 pointer-events-none flex items-center gap-2">
-                    <div class="glass-sheet px-3 py-1.5 rounded-xl border-amber-500/30 flex items-center gap-2 text-xs font-mono shadow-xl backdrop-blur-md">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span class="text-white font-bold">MQDH CAST</span>
-                        <span class="text-slate-500">&bull;</span>
-                        <span id="liveMonitorTimer" class="text-amber-400 font-bold">00:00.0</span>
-                    </div>
+                <div class="flex items-center justify-center pt-2">
+                    <button onclick="connectMqdhCast()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 text-neutral-950 font-black text-xs transition shadow-xl shadow-amber-500/25 flex items-center gap-2 cursor-pointer">
+                        <span>🥽</span><span>Select MQDH Cast Window →</span>
+                    </button>
                 </div>
-
-                <!-- HUD Overlay 2: Live Trainee Name (Top-Right) -->
-                <div class="absolute top-4 right-4 pointer-events-none">
-                    <div class="glass-sheet px-3.5 py-1.5 rounded-xl border-white/10 flex items-center gap-2 text-xs font-mono shadow-xl backdrop-blur-md">
-                        <span class="text-slate-400 text-[11px]">Trainee:</span>
-                        <strong id="hudTraineeName" class="font-black text-sm tracking-wide {{ $hasActive ? 'text-white' : 'text-slate-400 italic' }}">
-                            {{ $hasActive ? $traineeName : 'No trainee active yet' }}
-                        </strong>
-                        <span id="hudTraineeDot" class="w-1.5 h-1.5 rounded-full {{ $hasActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600' }}"></span>
-                    </div>
-                </div>
-
-                <!-- HUD Overlay 3: Live Hazard Found Counter (Bottom-Left) -->
-                <div class="absolute bottom-4 left-4 pointer-events-none">
-                    <div class="glass-sheet px-4 py-2 rounded-2xl border-amber-500/30 flex items-center gap-3 text-xs font-mono shadow-xl backdrop-blur-md">
-                        <div class="flex items-center gap-2">
-                            <span class="text-base">⚠️</span>
-                            <div>
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Hazards Found</span>
-                                <div class="flex items-baseline gap-1.5">
-                                    <span id="hudHazardCount" class="text-base font-black font-mono {{ $hasActive ? 'text-amber-400' : 'text-slate-400' }}">
-                                        {{ $hazardsFoundCount }} / 13
-                                    </span>
-                                    <span id="hudHazardPercent" class="text-xs font-bold font-mono {{ $hasActive ? 'text-emerald-400' : 'text-slate-500' }}">
-                                        ({{ $foundPercent }}%)
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- HUD Overlay 4: Headset Stream Quality (Bottom-Right) -->
-                <div class="absolute bottom-4 right-4 pointer-events-none hidden sm:block">
-                    <div class="glass-card px-3 py-1 rounded-xl text-[10px] font-mono text-slate-400 backdrop-blur-md">
-                        Quest 3 &bull; 60 FPS &bull; Low Latency
-                    </div>
-                </div>
-
             </div>
 
-            <!-- Bottom helper caption -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs text-slate-400 font-mono px-1">
-                <span class="flex items-center gap-1.5">
-                    <span class="text-amber-400">💡</span>
-                    <span>To stream: Open MQDH &rarr; Click Cast &rarr; Click "Connect MQDH Cast" in this dashboard.</span>
-                </span>
-                <span id="syncIndicatorStatus" class="font-semibold flex items-center gap-1 text-emerald-400">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Listening for VR Headset...</span>
-                </span>
-            </div>
         </div>
 
-        <!-- Right: Live Trainee Name & Hazard Found Tracking Panel (Span 4) -->
-        <div class="lg:col-span-4 space-y-4">
+        <!-- Bottom helper caption -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs text-slate-400 font-mono px-1">
+            <span class="flex items-center gap-1.5">
+                <span class="text-amber-400">💡</span>
+                <span>To stream: Open MQDH &rarr; Click Cast &rarr; Click "Connect MQDH Cast" in this dashboard.</span>
+            </span>
+            <span id="syncIndicatorStatus" class="font-semibold flex items-center gap-1 text-emerald-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Listening for VR Headset...</span>
+            </span>
+        </div>
+    </div>
 
-            <!-- Card 1: Live Active Trainee Appearance -->
-            <div class="glass-sheet p-5 rounded-3xl border-white/10 space-y-3.5 shadow-xl">
+    <!-- 3. Bottom Sections: Active Trainee Operator & Live Hazards Found -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pt-2">
+
+        <!-- Card 1: Active Trainee Operator (Span 5) -->
+        <div class="lg:col-span-5 space-y-4">
+            <div class="glass-sheet p-5 rounded-3xl border-white/10 space-y-4 shadow-xl">
                 <div class="flex items-center justify-between pb-2 border-b border-white/5">
                     <div class="flex items-center gap-2">
                         <span class="text-base">👤</span>
                         <h2 class="text-xs font-bold text-white uppercase tracking-wider">Active Trainee Operator</h2>
                     </div>
-                    <span id="badgeActiveStatus" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold {{ $hasActive ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-400 border border-white/10' }}">
-                        {{ $hasActive ? 'In VR Headset' : 'No Trainee Active' }}
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <span id="badgeActiveStatus" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold {{ $hasActive ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-400 border border-white/10' }}">
+                            {{ $hasActive ? 'In VR Headset' : 'No Trainee Active' }}
+                        </span>
+                        <button onclick="clearActiveTraineeSession()" class="text-[10px] font-mono text-slate-500 hover:text-rose-400 transition cursor-pointer" title="Reset current active trainee">
+                            Reset
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Live Trainee Name Appearance -->
+                <!-- Live Trainee Name Banner -->
                 <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
                     <div>
-                        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Current Candidate:</span>
+                        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Current Trainee:</span>
                         <span id="displayTraineeName" class="font-mono tracking-wide block mt-0.5 {{ $hasActive ? 'text-lg font-black text-white' : 'text-sm font-semibold text-slate-400 italic' }}">
                             {{ $hasActive ? $traineeName : 'No trainee active yet' }}
                         </span>
                     </div>
-                    <div id="displayTraineeAvatar" class="w-10 h-10 rounded-2xl border flex items-center justify-center font-black text-sm {{ $hasActive ? 'bg-amber-400/20 border-amber-400/30 text-amber-300' : 'bg-white/5 border-white/10 text-slate-500' }}">
+                    <div id="displayTraineeAvatar" class="w-11 h-11 rounded-2xl border flex items-center justify-center font-black text-sm {{ $hasActive ? 'bg-amber-400/20 border-amber-400/30 text-amber-300' : 'bg-white/5 border-white/10 text-slate-500' }}">
                         VR
+                    </div>
+                </div>
+
+                <!-- Live Session Telemetry Metrics Grid -->
+                <div class="grid grid-cols-2 gap-2.5 font-mono text-xs">
+                    <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Current Score</span>
+                        <span id="displayCardScore" class="text-base font-black text-amber-400 block">
+                            {{ number_format($traineeScore, 1) }}%
+                        </span>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Wrong Clicks</span>
+                        <span id="displayWrongClicks" class="text-base font-black text-rose-400 block">
+                            {{ $hasActive ? (int)($activeTrainee['wrong_clicks'] ?? 0) : 0 }}
+                        </span>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Hazards Found</span>
+                        <span class="text-base font-black text-emerald-400 block">
+                            <span id="displayCardHazardCount">{{ $hazardsFoundCount }}</span> / 13
+                        </span>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Drill Time</span>
+                        <span id="displaySessionTime" class="text-base font-black text-slate-300 block">
+                            {{ $hasActive && !empty($activeTrainee['completion_time']) ? sprintf('%02d:%02d', floor($activeTrainee['completion_time'] / 60), floor($activeTrainee['completion_time'] % 60)) : '00:00' }}
+                        </span>
                     </div>
                 </div>
 
@@ -202,19 +192,21 @@
                         <span>VR Headset Automatic Sync</span>
                     </div>
                     <p class="text-[11px] text-slate-400 leading-relaxed">
-                        Trainees enter their username directly inside the FindHazard VR headset. Their name and hazard spotting telemetry will automatically appear here in real time.
+                        Trainees enter their username directly inside the FindHazard VR headset. Their name and hazard spotting telemetry automatically appear here in real time.
                     </p>
                 </div>
             </div>
+        </div>
 
-            <!-- Card 2: Live Hazards Found Appearance & Checklist -->
+        <!-- Card 2: Live Hazards Found Appearance & Checklist (Span 7) -->
+        <div class="lg:col-span-7 space-y-4">
             <div class="glass-sheet p-5 rounded-3xl border-amber-500/20 space-y-4 shadow-xl">
                 <div class="flex items-center justify-between pb-2 border-b border-white/5">
                     <div class="flex items-center gap-2">
                         <span class="text-base">⚠️</span>
                         <h2 class="text-xs font-bold text-white uppercase tracking-wider">Live Hazards Found</h2>
                     </div>
-                    <span id="badgeTraineeScore" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold {{ $hasActive ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' : 'bg-white/5 text-slate-400 border border-white/10' }}">
+                    <span id="badgeTraineeScore" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold {{ $hasActive ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' : 'bg-white/5 text-slate-400 border border-white/10' }}">
                         {{ number_format($traineeScore, 1) }}% Score
                     </span>
                 </div>
@@ -235,14 +227,14 @@
                     </div>
                 </div>
 
-                <!-- Real-time Hazards Checklist Feed -->
+                <!-- Real-time Hazards Checklist Feed (2-Column Grid on sm+ screens) -->
                 <div class="space-y-1.5">
                     <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 uppercase tracking-wider">
                         <span>13 Facility Hazards</span>
                         <span id="hazardsFoundSummaryLabel">{{ $hazardsFoundCount }} of 13 Found</span>
                     </div>
 
-                    <div id="hazardsLiveChecklist" class="space-y-1.5 max-h-[320px] overflow-y-auto pr-1">
+                    <div id="hazardsLiveChecklist" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[380px] overflow-y-auto pr-1">
                         @foreach($allHazards as $hz)
                             @php
                                 $isFound = false;
@@ -264,13 +256,13 @@
                             @endphp
                             <div id="hazard-item-{{ $hz['id'] }}" 
                                 class="hazard-checklist-item p-2.5 rounded-2xl flex items-center justify-between text-xs transition border {{ $isFound ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-white/[0.02] border-white/5 text-slate-400' }}">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 min-w-0 pr-1">
                                     <span class="hazard-status-icon w-5 h-5 rounded-lg flex items-center justify-center text-[11px] font-black font-mono shrink-0 {{ $isFound ? 'bg-emerald-500 text-neutral-950' : 'bg-white/10 text-slate-500' }}">
                                         {{ $isFound ? '✓' : $hz['id'] }}
                                     </span>
-                                    <div>
-                                        <p class="font-bold text-white text-[11px] leading-tight">{{ $hz['name'] }}</p>
-                                        <span class="text-[9.5px] text-slate-500 font-mono">{{ $hz['area_icon'] }} {{ $hz['area_name'] }}</span>
+                                    <div class="truncate">
+                                        <p class="font-bold text-white text-[11px] leading-tight truncate">{{ $hz['name'] }}</p>
+                                        <span class="text-[9.5px] text-slate-500 font-mono block truncate">{{ $hz['area_icon'] }} {{ $hz['area_name'] }}</span>
                                     </div>
                                 </div>
 
@@ -291,7 +283,6 @@
                     <button onclick="pollLiveSessionNow()" class="text-amber-400 hover:text-amber-300 underline cursor-pointer">Sync Now</button>
                 </div>
             </div>
-
         </div>
 
     </div>
@@ -321,6 +312,7 @@
             const standby = document.getElementById('vrCastStandbyScreen');
             const disconnectBtn = document.getElementById('btnDisconnectCast');
             const statusBadge = document.getElementById('castStatusBadge');
+            const timerBadge = document.getElementById('liveMonitorTimerBadge');
 
             if (video) {
                 video.disablePictureInPicture = true;
@@ -333,6 +325,7 @@
             }
             if (standby) standby.classList.add('hidden');
             if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+            if (timerBadge) timerBadge.classList.remove('hidden');
             if (statusBadge) {
                 statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span class="text-emerald-300 font-bold">LIVE MQDH STREAM (ACTIVE)</span>';
                 statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center gap-2 shadow-sm shadow-emerald-500/20';
@@ -370,6 +363,7 @@
         const standby = document.getElementById('vrCastStandbyScreen');
         const disconnectBtn = document.getElementById('btnDisconnectCast');
         const statusBadge = document.getElementById('castStatusBadge');
+        const timerBadge = document.getElementById('liveMonitorTimerBadge');
 
         if (video) {
             video.disablePictureInPicture = true;
@@ -378,6 +372,7 @@
         }
         if (standby) standby.classList.remove('hidden');
         if (disconnectBtn) disconnectBtn.classList.add('hidden');
+        if (timerBadge) timerBadge.classList.add('hidden');
         if (statusBadge) {
             statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-slate-500"></span><span>AWAITING MQDH CAST</span>';
             statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-mono font-semibold bg-white/[0.04] border border-white/10 text-slate-400 flex items-center gap-2';
@@ -439,16 +434,17 @@
         .catch(err => console.error('Error clearing session:', err));
     }
 
-    // Apply Telemetry to HUD and Checklist
+    // Apply Telemetry to UI Card Metrics and Checklist
     function applyTraineeTelemetry(record) {
-        const hudName = document.getElementById('hudTraineeName');
-        const hudDot = document.getElementById('hudTraineeDot');
         const displayName = document.getElementById('displayTraineeName');
         const badgeActive = document.getElementById('badgeActiveStatus');
         const avatar = document.getElementById('displayTraineeAvatar');
 
-        const hudCount = document.getElementById('hudHazardCount');
-        const hudPercent = document.getElementById('hudHazardPercent');
+        const displayCardScore = document.getElementById('displayCardScore');
+        const displayWrongClicks = document.getElementById('displayWrongClicks');
+        const displayCardHazardCount = document.getElementById('displayCardHazardCount');
+        const displaySessionTime = document.getElementById('displaySessionTime');
+
         const displayCount = document.getElementById('displayHazardCount');
         const progressBar = document.getElementById('hazardProgressBar');
         const badgeScore = document.getElementById('badgeTraineeScore');
@@ -456,13 +452,6 @@
 
         if (!record || !record.username) {
             // State: NO TRAINEE ACTIVE YET
-            if (hudName) {
-                hudName.innerText = 'No trainee active yet';
-                hudName.className = 'font-mono text-sm italic text-slate-400';
-            }
-            if (hudDot) {
-                hudDot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600';
-            }
             if (displayName) {
                 displayName.innerText = 'No trainee active yet';
                 displayName.className = 'font-mono tracking-wide block mt-0.5 text-sm font-semibold text-slate-400 italic';
@@ -472,23 +461,20 @@
                 badgeActive.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/5 text-slate-400 border border-white/10';
             }
             if (avatar) {
-                avatar.className = 'w-10 h-10 rounded-2xl border flex items-center justify-center font-black text-sm bg-white/5 border-white/10 text-slate-500';
+                avatar.className = 'w-11 h-11 rounded-2xl border flex items-center justify-center font-black text-sm bg-white/5 border-white/10 text-slate-500';
             }
 
-            // Zero out hazards
-            if (hudCount) {
-                hudCount.innerText = '0 / 13';
-                hudCount.className = 'text-base font-black font-mono text-slate-400';
-            }
-            if (hudPercent) {
-                hudPercent.innerText = '(0.0%)';
-                hudPercent.className = 'text-xs font-bold font-mono text-slate-500';
-            }
+            // Zero out metrics
+            if (displayCardScore) displayCardScore.innerText = '0.0%';
+            if (displayWrongClicks) displayWrongClicks.innerText = '0';
+            if (displayCardHazardCount) displayCardHazardCount.innerText = '0';
+            if (displaySessionTime) displaySessionTime.innerText = '00:00';
+
             if (displayCount) displayCount.innerText = '0';
             if (progressBar) progressBar.style.width = '0%';
             if (badgeScore) {
                 badgeScore.innerText = '0.0% Score';
-                badgeScore.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/5 text-slate-400 border border-white/10';
+                badgeScore.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/5 text-slate-400 border border-white/10';
             }
             if (summaryLabel) summaryLabel.innerText = '0 of 13 Found';
 
@@ -512,13 +498,6 @@
         }
 
         // State: ACTIVE TRAINEE PRESENT
-        if (hudName) {
-            hudName.innerText = record.username;
-            hudName.className = 'font-mono text-sm font-black text-white';
-        }
-        if (hudDot) {
-            hudDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
-        }
         if (displayName) {
             displayName.innerText = record.username;
             displayName.className = 'font-mono tracking-wide block mt-0.5 text-lg font-black text-white';
@@ -528,25 +507,29 @@
             badgeActive.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
         }
         if (avatar) {
-            avatar.className = 'w-10 h-10 rounded-2xl border flex items-center justify-center font-black text-sm bg-amber-400/20 border-amber-400/30 text-amber-300';
+            avatar.className = 'w-11 h-11 rounded-2xl border flex items-center justify-center font-black text-sm bg-amber-400/20 border-amber-400/30 text-amber-300';
         }
 
         const found = parseInt(record.hazards_found) || 0;
         const pct = Math.min(100, Math.max(0, ((found / 13) * 100).toFixed(1)));
+        const scoreVal = Number(record.score || 0).toFixed(1);
 
-        if (hudCount) {
-            hudCount.innerText = `${found} / 13`;
-            hudCount.className = 'text-base font-black font-mono text-amber-400';
+        if (displayCardScore) displayCardScore.innerText = `${scoreVal}%`;
+        if (displayWrongClicks) displayWrongClicks.innerText = record.wrong_clicks || 0;
+        if (displayCardHazardCount) displayCardHazardCount.innerText = found;
+
+        if (displaySessionTime) {
+            const timeSec = Math.floor(record.completion_time || 0);
+            const m = Math.floor(timeSec / 60).toString().padStart(2, '0');
+            const s = (timeSec % 60).toString().padStart(2, '0');
+            displaySessionTime.innerText = `${m}:${s}`;
         }
-        if (hudPercent) {
-            hudPercent.innerText = `(${pct}%)`;
-            hudPercent.className = 'text-xs font-bold font-mono text-emerald-400';
-        }
+
         if (displayCount) displayCount.innerText = found;
         if (progressBar) progressBar.style.width = `${pct}%`;
         if (badgeScore) {
-            badgeScore.innerText = `${Number(record.score || 0).toFixed(1)}% Score`;
-            badgeScore.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30';
+            badgeScore.innerText = `${scoreVal}% Score`;
+            badgeScore.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30';
         }
         if (summaryLabel) summaryLabel.innerText = `${found} of 13 Found`;
 
