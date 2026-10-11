@@ -1,51 +1,67 @@
 @echo off
-title FindHazard VR - Live Monitor Auto Launcher
+title FindHazard VR - Silent Live Monitor Auto Launcher
 cls
 echo ====================================================================
-echo   FindHazard VR - Live Session Monitor (Auto Stream Launcher)
+echo   FindHazard VR - Live Session Monitor (Solution 2: Auto Stream)
 echo ====================================================================
 echo.
-echo [1/2] Checking browser environment...
 
+:: 1. Ensure USB reverse tunnel for Quest 3 trainee telemetry
+echo [1/3] Setting USB reverse tunnel for Quest 3 (Port 8000)...
+set ADB="C:\Users\Faiz Adham\AppData\Local\Android\Sdk\platform-tools\adb.exe"
+if not exist %ADB% (
+    set ADB="C:\Program Files\Unity\Hub\Editor\6000.3.19f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools\adb.exe"
+)
+if exist %ADB% (
+    %ADB% reverse tcp:8000 tcp:8000 >nul 2>&1
+)
+
+:: 2. Launch background silent casting watcher (pushes MQDH window behind dashboard)
+echo [2/3] Starting silent casting window watcher...
+taskkill /F /FI "WINDOWTITLE eq SilentCastWatcher*" >nul 2>&1
+start "SilentCastWatcher" /min powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0silent_cast_watcher.ps1"
+
+:: 3. Launch browser with auto-select casting flag (zero dialogs)
+echo [3/3] Opening Live VR Monitor Dashboard...
 set TARGET_URL=http://127.0.0.1:8000/monitor
-set FLAGS=--auto-select-desktop-capture-source="Casting" --enable-usermedia-screen-capturing --auto-accept-camera-and-microphone-capture
+set FLAGS=--auto-select-desktop-capture-source="Casting" --user-data-dir="%TEMP%\VRMonitorProfile" --enable-usermedia-screen-capturing --auto-accept-camera-and-microphone-capture
 
-:: 1. Try Google Chrome
+:: 3a. Try Google Chrome
 if exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
-    echo [2/2] Launching Google Chrome with Auto-Select Casting flag...
+    echo Launching Google Chrome (Auto-Select MQDH Casting)...
     start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" %FLAGS% "%TARGET_URL%"
     goto :DONE
 )
 
 if exist "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" (
-    echo [2/2] Launching Google Chrome (x86) with Auto-Select Casting flag...
+    echo Launching Google Chrome (Auto-Select MQDH Casting)...
     start "" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" %FLAGS% "%TARGET_URL%"
     goto :DONE
 )
 
-:: 2. Try Microsoft Edge
+:: 3b. Try Microsoft Edge
 if exist "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" (
-    echo [2/2] Launching Microsoft Edge with Auto-Select Casting flag...
+    echo Launching Microsoft Edge (Auto-Select MQDH Casting)...
     start "" "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" %FLAGS% "%TARGET_URL%"
     goto :DONE
 )
 
 if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
-    echo [2/2] Launching Microsoft Edge with Auto-Select Casting flag...
+    echo Launching Microsoft Edge (Auto-Select MQDH Casting)...
     start "" "C:\Program Files\Microsoft\Edge\Application\msedge.exe" %FLAGS% "%TARGET_URL%"
     goto :DONE
 )
 
-:: 3. Fallback
-echo [2/2] Opening default browser...
+:: 3c. Fallback
+echo Opening default browser...
 start "" "%TARGET_URL%"
 
 :DONE
 echo.
 echo ====================================================================
-echo   SUCCESS: Live Monitor opened!
-echo   * Ensure Meta Quest Developer Hub (Device Cast) is open.
-echo   * The stream will automatically connect without window prompts.
+echo   SUCCESS: Live Monitor Launched (Solution 2 Active)!
+echo   * In MQDH, click 'Device Cast' (Casting window will stay hidden).
+echo   * The stream connects into the VR Monitor with ZERO dialog popups!
 echo ====================================================================
 timeout /t 3 >nul
 exit /b
