@@ -208,13 +208,20 @@
                     </div>
                 </div>
 
-                <!-- Real-time Hazards Checklist Feed (2-Column Grid, Compact Scrollable Height) -->
-                <div class="space-y-1">
-                    <div class="flex justify-between items-center text-[9.5px] font-mono text-slate-400 uppercase tracking-wider">
-                        <span>13 Facility Hazards</span>
-                        <span id="hazardsFoundSummaryLabel">{{ $hazardsFoundCount }} of 13 Found</span>
-                    </div>
+                <!-- Expand / Collapse Toggle for 13 Facility Hazards Checklist -->
+                <div class="pt-0.5">
+                    <button type="button" onclick="toggleHazardsChecklist()" id="btnToggleChecklist" 
+                        class="w-full flex items-center justify-between py-1 px-1.5 rounded-lg hover:bg-white/[0.04] transition text-[10px] font-mono text-slate-400 cursor-pointer group">
+                        <span id="hazardsFoundSummaryLabel" class="text-slate-300 font-semibold">{{ $hazardsFoundCount }} of 13 Found</span>
+                        <span class="flex items-center gap-1.5 text-amber-400 group-hover:text-amber-300 font-bold transition">
+                            <span id="checklistToggleText">Expand 13 Hazards</span>
+                            <span id="checklistToggleIcon" class="text-[9px] transition-transform duration-200 inline-block">▼</span>
+                        </span>
+                    </button>
+                </div>
 
+                <!-- Collapsible 13 Facility Hazards Checklist (Hidden by default) -->
+                <div id="hazardsChecklistCollapsible" class="hidden space-y-1.5 pt-1 border-t border-white/5 transition-all">
                     <div id="hazardsLiveChecklist" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[190px] overflow-y-auto pr-1">
                         @foreach($allHazards as $hz)
                             @php
@@ -373,6 +380,25 @@
             container.requestFullscreen().catch(() => {});
         } else {
             document.exitFullscreen().catch(() => {});
+        }
+    }
+
+    // Toggle Expand / Collapse for 13 Facility Hazards Checklist
+    function toggleHazardsChecklist() {
+        const collapsible = document.getElementById('hazardsChecklistCollapsible');
+        const toggleText = document.getElementById('checklistToggleText');
+        const toggleIcon = document.getElementById('checklistToggleIcon');
+        if (!collapsible) return;
+
+        const isHidden = collapsible.classList.contains('hidden');
+        if (isHidden) {
+            collapsible.classList.remove('hidden');
+            if (toggleText) toggleText.innerText = 'Hide 13 Hazards';
+            if (toggleIcon) toggleIcon.style.transform = 'rotate(180deg)';
+        } else {
+            collapsible.classList.add('hidden');
+            if (toggleText) toggleText.innerText = 'Expand 13 Hazards';
+            if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
         }
     }
 
