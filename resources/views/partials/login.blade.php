@@ -1,7 +1,7 @@
 <!-- ======================================================== -->
 <!-- 1. LOGIN SCREEN CONTAINER                                -->
 <!-- ======================================================== -->
-<div id="view-login" class="relative z-20 w-full max-w-md my-auto flex flex-col items-center justify-center">
+<div id="view-login" class="relative z-20 w-full max-w-md my-auto flex flex-col items-center justify-center animate-fade-in-up">
     <div class="text-center space-y-2 mb-6">
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card border border-amber-500/30 text-amber-400 text-xs font-mono tracking-widest uppercase">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>

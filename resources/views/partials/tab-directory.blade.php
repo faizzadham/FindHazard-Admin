@@ -25,7 +25,7 @@
     </div>
 
     <!-- Filter & Leaderboard Controls (Search, Date Filter, Top-to-Bottom Leaderboard, Certificate) -->
-    <div class="glass-sheet p-4 rounded-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="glass-sheet p-4 rounded-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-in-up delay-1">
         <!-- 1. Search Trainee -->
         <div class="space-y-1">
             <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Search Trainee</label>
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Master Trainee Directory & Leaderboard Table -->
-    <div class="glass-sheet rounded-3xl overflow-hidden border-white/5 shadow-2xl">
+    <div class="glass-sheet rounded-3xl overflow-hidden border-white/5 shadow-2xl animate-fade-in-up delay-2">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
@@ -95,11 +95,11 @@
                                 <td class="p-3.5 font-semibold text-white whitespace-nowrap">
                                     <div class="flex items-center gap-2.5">
                                         @if($idx === 0)
-                                            <span class="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-sm shadow-amber-400/20" title="Rank 1 - Top Performer">#1</span>
+                                            <span class="w-6 h-6 rounded-lg medal-shimmer-gold text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-amber-400/25" title="Rank 1 - Top Performer">#1</span>
                                         @elseif($idx === 1)
-                                            <span class="w-6 h-6 rounded-lg bg-slate-300/20 text-slate-200 border border-slate-300/40 text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0" title="Rank 2">#2</span>
+                                            <span class="w-6 h-6 rounded-lg medal-shimmer-silver text-slate-100 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-slate-300/25" title="Rank 2">#2</span>
                                         @elseif($idx === 2)
-                                            <span class="w-6 h-6 rounded-lg bg-amber-700/20 text-amber-500 border border-amber-700/40 text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0" title="Rank 3">#3</span>
+                                            <span class="w-6 h-6 rounded-lg medal-shimmer-bronze text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25" title="Rank 3">#3</span>
                                         @else
                                             <span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#{{ $idx + 1 }}</span>
                                         @endif

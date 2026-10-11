@@ -4,9 +4,9 @@
 <div class="space-y-8">
 
     <!-- 1. Hero Introduction Card -->
-    <div class="glass-sheet p-6 sm:p-8 rounded-3xl relative overflow-hidden border-white/10 shadow-2xl">
-        <div class="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-20 -bottom-20 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="glass-sheet p-6 sm:p-8 rounded-3xl relative overflow-hidden border-white/10 shadow-2xl animate-fade-in-up">
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-ambient-orb-1"></div>
+        <div class="absolute -left-20 -bottom-20 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl pointer-events-none animate-ambient-orb-2"></div>
 
         <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div class="space-y-3 max-w-3xl">
@@ -23,13 +23,13 @@
 
             <!-- Quick Action Links -->
             <div class="flex flex-wrap sm:flex-col gap-2.5 w-full sm:w-auto shrink-0">
-                <a href="{{ route('dashboard.directory') }}" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                <a href="{{ route('dashboard.directory') }}" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95">
                     <span>👥</span><span>Directory Leaderboard</span>
                 </a>
-                <a href="{{ route('dashboard.analytics') }}" class="px-4 py-2 rounded-xl glass-card hover:bg-white/[0.08] text-slate-200 hover:text-white font-semibold text-xs transition flex items-center justify-center gap-2">
+                <a href="{{ route('dashboard.analytics') }}" class="px-4 py-2 rounded-xl glass-card hover:bg-white/[0.08] text-slate-200 hover:text-white font-semibold text-xs transition flex items-center justify-center gap-2 active:scale-95">
                     <span>📊</span><span>Sector Analytics</span>
                 </a>
-                <a href="{{ route('dashboard.monitor') }}" class="px-4 py-2 rounded-xl glass-card hover:bg-white/[0.08] text-slate-200 hover:text-white font-semibold text-xs transition flex items-center justify-center gap-2">
+                <a href="{{ route('dashboard.monitor') }}" class="px-4 py-2 rounded-xl glass-card hover:bg-white/[0.08] text-slate-200 hover:text-white font-semibold text-xs transition flex items-center justify-center gap-2 active:scale-95">
                     <span>🥽</span><span>Live VR Monitor</span>
                 </a>
             </div>
@@ -48,7 +48,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Pillar 1: Base Detection Score -->
-            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between">
+            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between animate-fade-in-up delay-1 hover:border-amber-500/30 transition-all duration-300">
                 <div class="space-y-2">
                     <div class="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-lg text-amber-400 font-bold">
                         1
@@ -65,7 +65,7 @@
             </div>
 
             <!-- Pillar 2: Trigger Discipline Penalty -->
-            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between">
+            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between animate-fade-in-up delay-2 hover:border-rose-500/30 transition-all duration-300">
                 <div class="space-y-2">
                     <div class="w-10 h-10 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-lg text-rose-400 font-bold">
                         2
@@ -82,7 +82,7 @@
             </div>
 
             <!-- Pillar 3: Clamped Score Calculation -->
-            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between">
+            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between animate-fade-in-up delay-3 hover:border-emerald-500/30 transition-all duration-300">
                 <div class="space-y-2">
                     <div class="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-lg text-emerald-400 font-bold">
                         3
@@ -99,7 +99,7 @@
             </div>
 
             <!-- Pillar 4: Time Efficiency & Pace -->
-            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between">
+            <div class="glass-sheet p-5 rounded-3xl border-white/5 space-y-3 flex flex-col justify-between animate-fade-in-up delay-4 hover:border-sky-500/30 transition-all duration-300">
                 <div class="space-y-2">
                     <div class="w-10 h-10 rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-lg text-sky-400 font-bold">
                         4

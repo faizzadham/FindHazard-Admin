@@ -34,16 +34,16 @@
         <!-- 4 Top Executive KPI Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
             <!-- Overall Detection Rate -->
-            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2">
+            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2 animate-fade-in-up delay-1">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Overall Detection</span>
                     <span class="text-xs font-mono text-emerald-400 font-bold">Facility Wide</span>
                 </div>
-                <div class="text-2xl font-black text-white font-mono">
+                <div class="text-2xl font-black text-white font-mono" data-counter="true" data-target="{{ number_format($summary['overallDetectionRate'] ?? 0, 1) }}" data-decimals="1" data-suffix="%">
                     {{ number_format($summary['overallDetectionRate'] ?? 0, 1) }}%
                 </div>
                 <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-emerald-500 to-amber-400 h-full rounded-full" 
+                    <div class="bg-gradient-to-r from-emerald-500 to-amber-400 h-full rounded-full shimmer-progress" 
                          style="width: {{ min(100, $summary['overallDetectionRate'] ?? 0) }}%;"></div>
                 </div>
                 <p class="text-[10px] text-slate-400 font-mono">
@@ -52,7 +52,7 @@
             </div>
 
             <!-- Best Performing Area -->
-            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2">
+            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2 animate-fade-in-up delay-2">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Highest Vigilance</span>
                     <span class="text-xs">🏆</span>
@@ -69,7 +69,7 @@
             </div>
 
             <!-- Primary Training Blindspot -->
-            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2">
+            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2 beacon-pulse-rose animate-fade-in-up delay-3">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Primary Blindspot</span>
                     <span class="text-xs">⚠️</span>
@@ -86,16 +86,16 @@
             </div>
 
             <!-- Qualification Rate -->
-            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2">
+            <div class="glass-card p-4 rounded-2xl border-white/5 space-y-2 animate-fade-in-up delay-4">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Certification Rate</span>
                     <span class="text-xs">🎖️</span>
                 </div>
-                <div class="text-2xl font-black text-amber-400 font-mono">
+                <div class="text-2xl font-black text-amber-400 font-mono" data-counter="true" data-target="{{ number_format($summary['certifiedRate'] ?? 0, 1) }}" data-decimals="1" data-suffix="%">
                     {{ number_format($summary['certifiedRate'] ?? 0, 1) }}%
                 </div>
                 <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full" 
+                    <div class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full shimmer-progress" 
                          style="width: {{ min(100, $summary['certifiedRate'] ?? 0) }}%;"></div>
                 </div>
                 <p class="text-[10px] text-slate-400 font-mono">
@@ -142,7 +142,7 @@
 
                     <div class="space-y-1">
                         <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-500
+                            <div class="h-full rounded-full transition-all duration-500 shimmer-progress
                                 @if($area['detection_rate'] >= 80.0) bg-gradient-to-r from-emerald-500 to-teal-400
                                 @elseif($area['detection_rate'] >= 65.0) bg-gradient-to-r from-amber-500 to-yellow-400
                                 @else bg-gradient-to-r from-rose-500 to-orange-400 @endif"

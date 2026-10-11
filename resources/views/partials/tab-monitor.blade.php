@@ -64,7 +64,7 @@
 
                 <!-- Standby / Connect Screen (Spacious & Clean) -->
                 <div id="vrCastStandbyScreen" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 bg-gradient-to-b from-neutral-900/90 via-neutral-950 to-neutral-950">
-                    <div class="relative">
+                    <div class="relative animate-float-bob">
                         <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl shadow-lg shadow-amber-500/10">
                             🥽
                         </div>
@@ -193,7 +193,7 @@
 
                             <!-- Progress Bar -->
                             <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
-                                <div id="fsHazardProgressBar" class="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 transition-all duration-500" style="width: {{ $foundPercent }}%;"></div>
+                                <div id="fsHazardProgressBar" class="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 shimmer-progress transition-all duration-500" style="width: {{ $foundPercent }}%;"></div>
                             </div>
                         </div>
                     </div>
@@ -208,8 +208,13 @@
                     <span class="text-amber-400">💡</span>
                     <span>To stream: Open MQDH &rarr; Click Cast &rarr; Click "Connect MQDH Cast".</span>
                 </span>
-                <span id="syncIndicatorStatus" class="font-semibold flex items-center gap-1 text-emerald-400">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="syncIndicatorStatus" class="font-semibold flex items-center gap-1.5 text-emerald-400">
+                    <span class="flex items-end gap-0.5 h-3 px-0.5" title="Signal Active">
+                        <span class="w-0.5 bg-emerald-400 rounded-full live-eq-bar"></span>
+                        <span class="w-0.5 bg-emerald-400 rounded-full live-eq-bar"></span>
+                        <span class="w-0.5 bg-emerald-400 rounded-full live-eq-bar"></span>
+                        <span class="w-0.5 bg-emerald-400 rounded-full live-eq-bar"></span>
+                    </span>
                     <span>Listening for VR Headset...</span>
                 </span>
             </div>
@@ -251,7 +256,7 @@
                     <!-- Column 3: Wrong Clicks -->
                     <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
                         <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Wrong Clicks</span>
-                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400 block mt-1.5">
+                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400 block mt-0.5">
                             {{ $hasActive ? (int)($activeTrainee['wrong_clicks'] ?? 0) : 0 }}
                         </span>
                     </div>
@@ -291,7 +296,7 @@
 
                     <!-- Progress Bar -->
                     <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
-                        <div id="hazardProgressBar" class="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500" style="width: {{ $foundPercent }}%;"></div>
+                        <div id="hazardProgressBar" class="h-full bg-gradient-to-r from-amber-500 to-emerald-400 shimmer-progress transition-all duration-500" style="width: {{ $foundPercent }}%;"></div>
                     </div>
                 </div>
 
@@ -709,6 +714,14 @@
             badgeScore.className = 'px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30';
         }
         if (summaryLabel) summaryLabel.innerText = `${found} of 13 Found`;
+
+        // Telemetry Update Glow Animation
+        if (typeof flashTelemetryHighlight === 'function') {
+            flashTelemetryHighlight('displayCardScore');
+            flashTelemetryHighlight('displayWrongClicks');
+            flashTelemetryHighlight('displayCardHazardCount');
+            flashTelemetryHighlight('fsStatsCard');
+        }
 
         // Update Fullscreen HUD Elements with active telemetry
         const initials = (record.username || 'VR').substring(0, 2).toUpperCase();

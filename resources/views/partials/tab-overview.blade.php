@@ -3,16 +3,16 @@
 
     <!-- KPI Metric Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
+        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md animate-fade-in-up delay-1 hover:border-amber-500/30 transition-all duration-300">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Total Trainees</span>
-            <div class="text-3xl font-black text-white mt-1 font-['JetBrains_Mono']">{{ $totalSessions ?? 0 }}</div>
+            <div class="text-3xl font-black text-white mt-1 font-['JetBrains_Mono']" data-counter="true" data-target="{{ $totalSessions ?? 0 }}" data-duration="900">{{ $totalSessions ?? 0 }}</div>
             <span class="text-[11px] text-slate-500 mt-1 block">Completed VR inspections</span>
         </div>
 
-        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md flex items-center justify-between">
+        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md flex items-center justify-between animate-fade-in-up delay-2 hover:border-amber-500/30 transition-all duration-300">
             <div>
                 <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Average Final Score</span>
-                <div class="text-3xl font-black text-amber-400 mt-1 font-['JetBrains_Mono']">{{ number_format($avgScore ?? 0, 1) }}%</div>
+                <div class="text-3xl font-black text-amber-400 mt-1 font-['JetBrains_Mono']" data-counter="true" data-target="{{ number_format($avgScore ?? 0, 1) }}" data-decimals="1" data-suffix="%" data-duration="1200">{{ number_format($avgScore ?? 0, 1) }}%</div>
                 <span class="text-[11px] text-slate-500 mt-1 block">Mean inspection percentage</span>
             </div>
             <!-- Visual Score Ring -->
@@ -31,11 +31,12 @@
                         $avgScColor = $avgScVal >= 80 ? 'text-amber-400' : ($avgScVal >= 60 ? 'text-yellow-400' : 'text-rose-400');
                     @endphp
                     <path
-                        class="{{ $avgScColor }} transition-all duration-700 ease-out"
+                        class="{{ $avgScColor }} svg-score-ring transition-all duration-1000 ease-out"
                         stroke="currentColor"
                         stroke-width="3.5"
                         stroke-dasharray="100, 100"
                         stroke-dashoffset="{{ $avgScOffset }}"
+                        data-target-offset="{{ $avgScOffset }}"
                         stroke-linecap="round"
                         fill="none"
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -47,15 +48,15 @@
             </div>
         </div>
 
-        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
+        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md animate-fade-in-up delay-3 hover:border-amber-500/30 transition-all duration-300">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Avg Completion Time</span>
             <div class="text-3xl font-black text-sky-400 mt-1 font-['JetBrains_Mono']">{{ floor(($avgTime ?? 0) / 60) }}m {{ sprintf('%02ds', round(fmod($avgTime ?? 0, 60))) }}</div>
             <span class="text-[11px] text-slate-500 mt-1 block">Average warehouse inspection time</span>
         </div>
 
-        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
+        <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md animate-fade-in-up delay-4 hover:border-amber-500/30 transition-all duration-300">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Certified Trainees</span>
-            <div class="text-3xl font-black text-emerald-400 mt-1 font-['JetBrains_Mono']">
+            <div class="text-3xl font-black text-emerald-400 mt-1 font-['JetBrains_Mono']" data-counter="true" data-target="{{ \App\Models\TraineeResult::where('is_certified', true)->count() }}" data-duration="900">
                 {{ \App\Models\TraineeResult::where('is_certified', true)->count() }}
             </div>
             <span class="text-[11px] text-slate-500 mt-1 block">Score &ge; 80.0% qualification rate</span>
@@ -63,7 +64,7 @@
     </div>
 
     <!-- Trainee Inspection Results Table -->
-    <div class="rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md overflow-hidden">
+    <div class="rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md overflow-hidden animate-fade-in-up delay-5">
         <div class="p-4 sm:p-5 border-b border-white/10 flex justify-between items-center">
             <div>
                 <h3 class="text-sm font-bold tracking-wider uppercase text-amber-400">Trainee Session Records</h3>

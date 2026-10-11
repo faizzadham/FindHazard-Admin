@@ -44,12 +44,12 @@
     </div>
 
     <!-- 2. Hero Trainee Profile Header Card -->
-    <div class="glass-sheet p-6 rounded-3xl relative overflow-hidden border-white/10 shadow-2xl">
-        <div class="absolute -right-16 -top-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="glass-sheet p-6 rounded-3xl relative overflow-hidden border-white/10 shadow-2xl animate-fade-in-up delay-1">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-ambient-orb-1"></div>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-5 relative z-10">
             <!-- Trainee Identity -->
             <div class="flex items-center gap-4">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400/30 to-amber-600/20 border border-amber-400/40 flex items-center justify-center text-amber-300 font-black text-xl font-mono shadow-lg shadow-amber-500/10 shrink-0">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400/30 to-amber-600/20 border border-amber-400/40 flex items-center justify-center text-amber-300 font-black text-xl font-mono shadow-lg shadow-amber-500/10 shrink-0 animate-float-bob">
                     {{ strtoupper(substr($record->username, 0, 2)) }}
                 </div>
                 <div class="space-y-1">
@@ -93,10 +93,11 @@
     <!-- 3. Key Personal Statistics (4-Card Metric Grid) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Metric 1: Visual Score Ring & Final Score -->
-        <div class="glass-sheet p-5 rounded-3xl border-white/5 flex items-center justify-between">
+        <div class="glass-sheet p-5 rounded-3xl border-white/5 flex items-center justify-between animate-fade-in-up delay-2 hover:border-amber-500/30 transition-all duration-300">
             <div>
                 <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Final Score</span>
-                <div class="text-3xl font-black mt-1 font-['JetBrains_Mono'] {{ $record->score >= 80 ? 'text-emerald-400' : ($record->score >= 60 ? 'text-amber-400' : 'text-rose-400') }}">
+                <div class="text-3xl font-black mt-1 font-['JetBrains_Mono'] {{ $record->score >= 80 ? 'text-emerald-400' : ($record->score >= 60 ? 'text-amber-400' : 'text-rose-400') }}"
+                     data-counter="true" data-target="{{ number_format($record->score, 1) }}" data-decimals="1" data-suffix="%" data-duration="1200">
                     {{ number_format($record->score, 1) }}%
                 </div>
                 <span class="text-[11px] text-slate-500 mt-1 block">Pass Standard &ge; 80%</span>
@@ -117,11 +118,12 @@
                         $scColor = $scVal >= 90 ? 'text-emerald-400' : ($scVal >= 80 ? 'text-teal-400' : ($scVal >= 60 ? 'text-amber-400' : 'text-rose-400'));
                     @endphp
                     <path
-                        class="{{ $scColor }} transition-all duration-700 ease-out"
+                        class="{{ $scColor }} svg-score-ring transition-all duration-1000 ease-out"
                         stroke="currentColor"
                         stroke-width="3.5"
                         stroke-dasharray="100, 100"
                         stroke-dashoffset="{{ $scOffset }}"
+                        data-target-offset="{{ $scOffset }}"
                         stroke-linecap="round"
                         fill="none"
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -134,7 +136,7 @@
         </div>
 
         <!-- Metric 2: Hazards Found -->
-        <div class="glass-sheet p-5 rounded-3xl border-white/5">
+        <div class="glass-sheet p-5 rounded-3xl border-white/5 animate-fade-in-up delay-3 hover:border-emerald-500/30 transition-all duration-300">
             <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Hazards Identified</span>
             <div class="text-3xl font-black text-emerald-400 mt-1 font-['JetBrains_Mono']">
                 {{ $record->hazards_found }} <span class="text-base text-slate-500 font-semibold">/ 13</span>
@@ -145,7 +147,7 @@
         </div>
 
         <!-- Metric 3: Hazards Missed -->
-        <div class="glass-sheet p-5 rounded-3xl border-white/5">
+        <div class="glass-sheet p-5 rounded-3xl border-white/5 animate-fade-in-up delay-4 hover:border-rose-500/30 transition-all duration-300">
             <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Hazards Missed</span>
             <div class="text-3xl font-black {{ $record->hazards_missed > 0 ? 'text-rose-400' : 'text-emerald-400' }} mt-1 font-['JetBrains_Mono']">
                 {{ $record->hazards_missed }} <span class="text-base text-slate-500 font-semibold">/ 13</span>
@@ -156,7 +158,7 @@
         </div>
 
         <!-- Metric 4: Duration & Penalty -->
-        <div class="glass-sheet p-5 rounded-3xl border-white/5">
+        <div class="glass-sheet p-5 rounded-3xl border-white/5 animate-fade-in-up delay-5 hover:border-sky-500/30 transition-all duration-300">
             <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Scan Duration &amp; Clicks</span>
             <div class="text-3xl font-black text-sky-400 mt-1 font-['JetBrains_Mono']">
                 {{ floor($record->completion_time / 60) }}m {{ sprintf('%02ds', round(fmod($record->completion_time, 60))) }}
@@ -421,6 +423,12 @@
             const m = document.getElementById('certificateModal');
             if (m) {
                 m.classList.remove('opacity-0', 'pointer-events-none');
+                m.classList.add('opacity-100');
+                const card = m.querySelector('div');
+                if (card) {
+                    card.classList.remove('scale-95');
+                    card.classList.add('scale-100');
+                }
             }
         }
 
@@ -428,6 +436,12 @@
             const m = document.getElementById('certificateModal');
             if (m) {
                 m.classList.add('opacity-0', 'pointer-events-none');
+                m.classList.remove('opacity-100');
+                const card = m.querySelector('div');
+                if (card) {
+                    card.classList.remove('scale-100');
+                    card.classList.add('scale-95');
+                }
             }
         }
     </script>

@@ -207,11 +207,11 @@ function applyDirectoryFilters() {
         let rankBadge = '';
         if (sortVal === 'top_to_bottom') {
             if (idx === 0) {
-                rankBadge = `<span class="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-sm shadow-amber-400/20" title="Rank 1 - Top Performer">#1</span>`;
+                rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-gold text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-amber-400/25" title="Rank 1 - Top Performer">#1</span>`;
             } else if (idx === 1) {
-                rankBadge = `<span class="w-6 h-6 rounded-lg bg-slate-300/20 text-slate-200 border border-slate-300/40 text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0" title="Rank 2">#2</span>`;
+                rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-silver text-slate-100 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-slate-300/25" title="Rank 2">#2</span>`;
             } else if (idx === 2) {
-                rankBadge = `<span class="w-6 h-6 rounded-lg bg-amber-700/20 text-amber-500 border border-amber-700/40 text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0" title="Rank 3">#3</span>`;
+                rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-bronze text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25" title="Rank 3">#3</span>`;
             } else {
                 rankBadge = `<span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#${idx + 1}</span>`;
             }
@@ -533,14 +533,77 @@ function exportPdfCertificate() {
     w.document.close();
 }
 
+// ==========================================================================
+// FindHazard VR — Dynamic Telemetry Animation & Counter Engine
+// ==========================================================================
+
+function animateNumberCounter(el, start, end, duration = 1000, decimals = 0, suffix = '') {
+    if (!el) return;
+    const startTime = performance.now();
+    const diff = end - start;
+
+    function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Smooth easeOutCubic curve
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const currentVal = start + (diff * ease);
+        el.innerText = (decimals > 0 ? currentVal.toFixed(decimals) : Math.round(currentVal)) + suffix;
+
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        } else {
+            el.innerText = (decimals > 0 ? end.toFixed(decimals) : Math.round(end)) + suffix;
+        }
+    }
+    requestAnimationFrame(updateCounter);
+}
+
+function initDashboardMetricCounters() {
+    document.querySelectorAll('[data-counter="true"]').forEach(el => {
+        const target = parseFloat(el.getAttribute('data-target') || '0');
+        const decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+        const suffix = el.getAttribute('data-suffix') || '';
+        const duration = parseInt(el.getAttribute('data-duration') || '1100', 10);
+        animateNumberCounter(el, 0, target, duration, decimals, suffix);
+    });
+}
+
+function initSvgScoreRings() {
+    document.querySelectorAll('.svg-score-ring').forEach(ring => {
+        const targetOffset = ring.getAttribute('data-target-offset');
+        if (targetOffset !== null) {
+            ring.style.strokeDashoffset = '100';
+            setTimeout(() => {
+                ring.style.strokeDashoffset = targetOffset;
+            }, 80);
+        }
+    });
+}
+
+function flashTelemetryHighlight(elOrId) {
+    const el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
+    if (!el) return;
+    el.classList.remove('telemetry-flash');
+    void el.offsetWidth; // Force CSS reflow to re-trigger animation
+    el.classList.add('telemetry-flash');
+    setTimeout(() => {
+        el.classList.remove('telemetry-flash');
+    }, 850);
+}
+
 // Automatic Page Initialization based on current page elements
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Overview Page
+    // 1. Initialize Animated KPI Counters & Circular Gauges
+    initDashboardMetricCounters();
+    initSvgScoreRings();
+
+    // 2. Overview Page
     if (document.getElementById('incomingRunsContainer')) {
         renderIncomingRunsLog();
     }
 
-    // 2. Directory Page
+    // 3. Directory Page
     if (document.getElementById('traineeTableBody')) {
         applyDirectoryFilters();
     }

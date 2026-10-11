@@ -59,15 +59,23 @@ body {
 .iso-cube-wrap {
     transform-style: preserve-3d;
     transform: rotateX(58deg) rotateZ(45deg);
+    animation: rotateCube3D 20s linear infinite;
+    transition: animation-duration 0.3s ease;
+}
+
+.iso-cube-wrap:hover {
+    animation-duration: 8s;
 }
 
 .cube-face {
     position: absolute;
     width: 72px;
     height: 72px;
-    background: rgba(245, 158, 11, 0.18);
+    background: rgba(245, 158, 11, 0.15);
     border: 1.5px solid rgba(245, 158, 11, 0.7);
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 0 15px rgba(245, 158, 11, 0.25);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.35), inset 0 0 15px rgba(245, 158, 11, 0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .cube-face-front  { transform: translateZ(36px); }
@@ -89,13 +97,257 @@ body {
     animation: pulse-core 2.4s ease-in-out infinite alternate;
 }
 
+@keyframes rotateCube3D {
+    0% {
+        transform: rotateX(58deg) rotateZ(45deg);
+    }
+    50% {
+        transform: rotateX(65deg) rotateZ(225deg) rotateY(15deg);
+    }
+    100% {
+        transform: rotateX(58deg) rotateZ(405deg);
+    }
+}
+
 @keyframes pulse-core {
     from {
         transform: scale(0.9);
+        box-shadow: 0 0 25px 8px rgba(245, 158, 11, 0.7);
     }
     to {
-        transform: scale(1.15);
+        transform: scale(1.18);
         filter: brightness(1.4);
+        box-shadow: 0 0 45px 16px rgba(245, 158, 11, 1);
+    }
+}
+
+/* ==========================================================================
+   Atmospheric Ambience & Lighting Animations
+   ========================================================================== */
+.animate-ambient-orb-1 {
+    animation: ambientFloat1 22s ease-in-out infinite alternate;
+}
+
+.animate-ambient-orb-2 {
+    animation: ambientFloat2 26s ease-in-out infinite alternate;
+}
+
+@keyframes ambientFloat1 {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    50% {
+        transform: translate(45px, 35px) scale(1.08);
+    }
+    100% {
+        transform: translate(-30px, 60px) scale(0.95);
+    }
+}
+
+@keyframes ambientFloat2 {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    50% {
+        transform: translate(-50px, -40px) scale(1.12);
+    }
+    100% {
+        transform: translate(35px, -25px) scale(0.92);
+    }
+}
+
+/* Cyber Scanning Grid Line */
+.cyber-scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.35), rgba(253, 224, 71, 0.6), rgba(245, 158, 11, 0.35), transparent);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+    opacity: 0.7;
+    pointer-events-none;
+    z-index: 1;
+    animation: scanlineSweep 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes scanlineSweep {
+    0% {
+        top: -10px;
+        opacity: 0;
+    }
+    5% {
+        opacity: 0.7;
+    }
+    95% {
+        opacity: 0.7;
+    }
+    100% {
+        top: 100vh;
+        opacity: 0;
+    }
+}
+
+/* ==========================================================================
+   Levitation, Bobbing & Pulses
+   ========================================================================== */
+.animate-float-bob {
+    animation: floatBob 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes floatBob {
+    0% {
+        transform: translateY(0px);
+    }
+    100% {
+        transform: translateY(-6px);
+    }
+}
+
+/* Beacon Warning Pulse (for Primary Blindspot & Safety Alerts) */
+.beacon-pulse-rose {
+    animation: beaconPulseRose 2.5s infinite;
+}
+
+@keyframes beaconPulseRose {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.35), inset 0 0 0 0 rgba(244, 63, 94, 0.2);
+        border-color: rgba(244, 63, 94, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 24px 4px rgba(244, 63, 94, 0.25), inset 0 0 12px rgba(244, 63, 94, 0.15);
+        border-color: rgba(244, 63, 94, 0.6);
+    }
+}
+
+.beacon-pulse-amber {
+    animation: beaconPulseAmber 2.8s infinite;
+}
+
+@keyframes beaconPulseAmber {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.3), inset 0 0 0 0 rgba(245, 158, 11, 0.15);
+        border-color: rgba(245, 158, 11, 0.25);
+    }
+    50% {
+        box-shadow: 0 0 22px 3px rgba(245, 158, 11, 0.25), inset 0 0 10px rgba(245, 158, 11, 0.12);
+        border-color: rgba(245, 158, 11, 0.55);
+    }
+}
+
+/* Live Equalizer Audio/Signal Wave Bars */
+.live-eq-bar {
+    animation: eqPulse 1.2s ease-in-out infinite alternate;
+}
+.live-eq-bar:nth-child(1) { animation-delay: 0.0s; }
+.live-eq-bar:nth-child(2) { animation-delay: 0.3s; }
+.live-eq-bar:nth-child(3) { animation-delay: 0.15s; }
+.live-eq-bar:nth-child(4) { animation-delay: 0.45s; }
+
+@keyframes eqPulse {
+    0% { height: 3px; }
+    100% { height: 14px; }
+}
+
+/* ==========================================================================
+   Progress Bar Shimmer & Leaderboard Medals
+   ========================================================================== */
+.shimmer-progress {
+    position: relative;
+    overflow: hidden;
+}
+
+.shimmer-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    animation: progressShimmerSweep 2.2s infinite;
+}
+
+@keyframes progressShimmerSweep {
+    0% { left: -100%; }
+    100% { left: 200%; }
+}
+
+/* Top 3 Leaderboard Medal Shimmers */
+.medal-shimmer-gold {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(253, 224, 71, 0.45) 50%, rgba(245, 158, 11, 0.3) 100%);
+    background-size: 200% 200%;
+    animation: medalGlint 3.5s ease infinite;
+    border-color: rgba(253, 224, 71, 0.6) !important;
+}
+
+.medal-shimmer-silver {
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.25) 0%, rgba(241, 245, 249, 0.45) 50%, rgba(148, 163, 184, 0.25) 100%);
+    background-size: 200% 200%;
+    animation: medalGlint 4s ease infinite;
+    border-color: rgba(226, 232, 240, 0.5) !important;
+}
+
+.medal-shimmer-bronze {
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.25) 0%, rgba(251, 146, 60, 0.35) 50%, rgba(180, 83, 9, 0.25) 100%);
+    background-size: 200% 200%;
+    animation: medalGlint 4.5s ease infinite;
+    border-color: rgba(251, 146, 60, 0.5) !important;
+}
+
+@keyframes medalGlint {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Telemetry Flash Glow (Triggers when live data updates) */
+.telemetry-flash {
+    animation: flashGlow 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes flashGlow {
+    0% {
+        background-color: rgba(245, 158, 11, 0.3);
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: none;
+    }
+}
+
+/* ==========================================================================
+   Staggered Entrance Animation Utility
+   ========================================================================== */
+.animate-fade-in-up {
+    animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.12s; }
+.delay-3 { animation-delay: 0.19s; }
+.delay-4 { animation-delay: 0.26s; }
+.delay-5 { animation-delay: 0.33s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Respect user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
 

@@ -16,16 +16,17 @@
 
     <!-- Atmospheric Yellow Ambient Glow -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="absolute -top-32 left-1/3 w-[46rem] h-[46rem] bg-amber-500/10 blur-[160px] rounded-full"></div>
-        <div class="absolute bottom-10 right-10 w-[38rem] h-[38rem] bg-yellow-500/[0.08] blur-[150px] rounded-full"></div>
+        <div class="absolute -top-32 left-1/3 w-[46rem] h-[46rem] bg-amber-500/10 blur-[160px] rounded-full animate-ambient-orb-1"></div>
+        <div class="absolute bottom-10 right-10 w-[38rem] h-[38rem] bg-yellow-500/[0.08] blur-[150px] rounded-full animate-ambient-orb-2"></div>
         <div class="absolute inset-0 bg-[radial-gradient(#ffffff06_1px,transparent_1px)] [background-size:32px_32px]"></div>
+        <div class="cyber-scanline"></div>
     </div>
 
     <!-- Toast Notification -->
     @include('partials.toast')
 
     <!-- Operations Dashboard Master Container -->
-    <div id="view-dashboard" class="relative z-10 w-full max-w-[1440px] space-y-6">
+    <div id="view-dashboard" class="relative z-10 w-full max-w-[1440px] space-y-6 animate-fade-in-up">
 
         <!-- Master Glass Sheet -->
         <section class="glass-sheet rounded-[2.2rem] p-6 lg:p-8 space-y-6">
