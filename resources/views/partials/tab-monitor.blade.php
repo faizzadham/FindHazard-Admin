@@ -104,6 +104,102 @@
                     </div>
                 </div>
 
+                <!-- ======================================================== -->
+                <!-- FULLSCREEN HUD OVERLAY (Visible only in Fullscreen Mode) -->
+                <!-- ======================================================== -->
+                <div id="vrFullscreenHudOverlay" class="absolute inset-0 pointer-events-none hidden flex-col justify-between p-6 sm:p-8 z-30 transition-all duration-300">
+
+                    <!-- TOP ROW: Top-Left Trainee Card, Top-Right Score/Wrong Clicks/Hazard & Exit -->
+                    <div class="flex items-start justify-between w-full gap-4">
+
+                        <!-- TOP-LEFT: Current Trainee -->
+                        <div id="fsTraineeCard" class="glass-sheet bg-neutral-950/85 backdrop-blur-xl border border-white/15 p-3.5 sm:p-4 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-sm pointer-events-auto transition-all">
+                            <div id="fsTraineeAvatar" class="w-11 h-11 rounded-xl border flex items-center justify-center font-black text-sm shadow-inner shrink-0 {{ $hasActive ? 'bg-amber-400/20 border-amber-400/30 text-amber-300' : 'bg-white/5 border-white/10 text-slate-500' }}">
+                                <span>{{ $hasActive ? strtoupper(substr($traineeName, 0, 2)) : 'VR' }}</span>
+                            </div>
+                            <div class="min-w-0 pr-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">Current Trainee</span>
+                                    <span id="fsTraineeStatus" class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold {{ $hasActive ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-white/5 text-slate-400 border border-white/10' }}">
+                                        {{ $hasActive ? '● In VR Headset' : 'Standby' }}
+                                    </span>
+                                </div>
+                                <h3 id="fsTraineeName" class="font-mono tracking-wide font-black text-base sm:text-lg text-white truncate mt-0.5" title="{{ $hasActive ? $traineeName : 'No trainee active yet' }}">
+                                    {{ $hasActive ? $traineeName : 'No trainee active yet' }}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- TOP-RIGHT: Score, Wrong Clicks, Hazard & Exit Button -->
+                        <div class="flex items-center gap-3 pointer-events-auto">
+                            <!-- Telemetry Metrics Card -->
+                            <div id="fsStatsCard" class="glass-sheet bg-neutral-950/85 backdrop-blur-xl border border-white/15 px-5 py-3 sm:py-3.5 rounded-2xl shadow-2xl flex items-center gap-5 sm:gap-6 font-mono">
+                                <!-- Score -->
+                                <div class="text-center">
+                                    <span class="text-[9.5px] uppercase tracking-wider text-slate-400 font-bold block">Score</span>
+                                    <span id="fsTraineeScore" class="text-base sm:text-lg font-black text-amber-400 block mt-0.5">
+                                        {{ number_format($traineeScore, 1) }}%
+                                    </span>
+                                </div>
+
+                                <div class="h-8 w-px bg-white/10"></div>
+
+                                <!-- Wrong Clicks -->
+                                <div class="text-center">
+                                    <span class="text-[9.5px] uppercase tracking-wider text-slate-400 font-bold block">Wrong Clicks</span>
+                                    <span id="fsWrongClicks" class="text-base sm:text-lg font-black text-rose-400 block mt-0.5">
+                                        {{ $hasActive ? (int)($activeTrainee['wrong_clicks'] ?? 0) : 0 }}
+                                    </span>
+                                </div>
+
+                                <div class="h-8 w-px bg-white/10"></div>
+
+                                <!-- Hazard -->
+                                <div class="text-center">
+                                    <span class="text-[9.5px] uppercase tracking-wider text-slate-400 font-bold block">Hazard</span>
+                                    <span class="text-base sm:text-lg font-black text-emerald-400 block mt-0.5">
+                                        <span id="fsHazardCount">{{ $hazardsFoundCount }}</span>
+                                        <span class="text-slate-500 text-xs font-semibold">/ 13</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Exit Fullscreen Button -->
+                            <button onclick="toggleMonitorFullscreen()" class="glass-sheet bg-neutral-950/85 hover:bg-neutral-900 backdrop-blur-xl border border-white/15 px-3 py-3 rounded-2xl text-slate-300 hover:text-white transition shadow-2xl cursor-pointer flex items-center gap-1.5 font-mono text-xs font-bold" title="Exit Fullscreen (Esc)">
+                                <span class="text-sm">✕</span>
+                                <span class="hidden sm:inline">Exit</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM ROW: Bottom-Middle Live Hazards Found -->
+                    <div class="flex items-center justify-center w-full pb-2">
+                        <div id="fsBottomHazardsCard" class="glass-sheet bg-neutral-950/90 backdrop-blur-xl border border-amber-500/30 p-3.5 sm:p-4 px-6 rounded-2xl shadow-2xl max-w-md w-full space-y-2 pointer-events-auto">
+                            <div class="flex items-center justify-between font-mono">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-base">⚠️</span>
+                                    <span class="text-xs font-black text-white uppercase tracking-wider">Live Hazards Found</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm sm:text-base font-black text-amber-400">
+                                        <span id="fsBottomHazardCount">{{ $hazardsFoundCount }}</span>
+                                        <span class="text-slate-400 text-xs font-semibold">/ 13</span>
+                                    </span>
+                                    <span id="fsBottomHazardPercent" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                                        {{ $foundPercent }}%
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                                <div id="fsHazardProgressBar" class="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 transition-all duration-500" style="width: {{ $foundPercent }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
             <!-- Helper caption below monitor -->
@@ -418,10 +514,27 @@
     function toggleMonitorFullscreen() {
         const container = document.getElementById('vrMonitorScreenContainer');
         if (!container) return;
-        if (!document.fullscreenElement) {
-            container.requestFullscreen().catch(() => {});
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        if (!isFs) {
+            if (container.requestFullscreen) {
+                container.requestFullscreen().catch(() => {});
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            } else if (container.mozRequestFullScreen) {
+                container.mozRequestFullScreen();
+            } else if (container.msRequestFullscreen) {
+                container.msRequestFullscreen();
+            }
         } else {
-            document.exitFullscreen().catch(() => {});
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
         }
     }
 
@@ -479,6 +592,17 @@
         const badgeScore = document.getElementById('badgeTraineeScore');
         const summaryLabel = document.getElementById('hazardsFoundSummaryLabel');
 
+        // Fullscreen HUD Elements
+        const fsTraineeName = document.getElementById('fsTraineeName');
+        const fsTraineeStatus = document.getElementById('fsTraineeStatus');
+        const fsTraineeAvatar = document.getElementById('fsTraineeAvatar');
+        const fsTraineeScore = document.getElementById('fsTraineeScore');
+        const fsWrongClicks = document.getElementById('fsWrongClicks');
+        const fsHazardCount = document.getElementById('fsHazardCount');
+        const fsBottomHazardCount = document.getElementById('fsBottomHazardCount');
+        const fsBottomHazardPercent = document.getElementById('fsBottomHazardPercent');
+        const fsHazardProgressBar = document.getElementById('fsHazardProgressBar');
+
         if (!record || !record.username) {
             // State: NO TRAINEE ACTIVE YET
             if (displayName) {
@@ -506,6 +630,26 @@
                 badgeScore.className = 'px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-white/5 text-slate-400 border border-white/10';
             }
             if (summaryLabel) summaryLabel.innerText = '0 of 13 Found';
+
+            // Reset Fullscreen HUD Elements
+            if (fsTraineeName) {
+                fsTraineeName.innerText = 'No trainee active yet';
+                fsTraineeName.className = 'font-mono tracking-wide font-black text-base text-slate-400 italic truncate mt-0.5';
+            }
+            if (fsTraineeStatus) {
+                fsTraineeStatus.innerText = 'Standby';
+                fsTraineeStatus.className = 'px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-white/5 text-slate-400 border border-white/10';
+            }
+            if (fsTraineeAvatar) {
+                fsTraineeAvatar.innerHTML = '<span>VR</span>';
+                fsTraineeAvatar.className = 'w-11 h-11 rounded-xl border flex items-center justify-center font-black text-sm shadow-inner shrink-0 bg-white/5 border-white/10 text-slate-500';
+            }
+            if (fsTraineeScore) fsTraineeScore.innerText = '0.0%';
+            if (fsWrongClicks) fsWrongClicks.innerText = '0';
+            if (fsHazardCount) fsHazardCount.innerText = '0';
+            if (fsBottomHazardCount) fsBottomHazardCount.innerText = '0';
+            if (fsBottomHazardPercent) fsBottomHazardPercent.innerText = '0%';
+            if (fsHazardProgressBar) fsHazardProgressBar.style.width = '0%';
 
             // Mark all 13 hazards as WAITING
             for (let i = 1; i <= 13; i++) {
@@ -561,6 +705,27 @@
             badgeScore.className = 'px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30';
         }
         if (summaryLabel) summaryLabel.innerText = `${found} of 13 Found`;
+
+        // Update Fullscreen HUD Elements with active telemetry
+        const initials = (record.username || 'VR').substring(0, 2).toUpperCase();
+        if (fsTraineeName) {
+            fsTraineeName.innerText = record.username;
+            fsTraineeName.className = 'font-mono tracking-wide font-black text-base sm:text-lg text-white truncate mt-0.5';
+        }
+        if (fsTraineeStatus) {
+            fsTraineeStatus.innerText = '● In VR Headset';
+            fsTraineeStatus.className = 'px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        }
+        if (fsTraineeAvatar) {
+            fsTraineeAvatar.innerHTML = `<span>${initials}</span>`;
+            fsTraineeAvatar.className = 'w-11 h-11 rounded-xl border flex items-center justify-center font-black text-sm shadow-inner shrink-0 bg-amber-400/20 border-amber-400/30 text-amber-300';
+        }
+        if (fsTraineeScore) fsTraineeScore.innerText = `${scoreVal}%`;
+        if (fsWrongClicks) fsWrongClicks.innerText = record.wrong_clicks || 0;
+        if (fsHazardCount) fsHazardCount.innerText = found;
+        if (fsBottomHazardCount) fsBottomHazardCount.innerText = found;
+        if (fsBottomHazardPercent) fsBottomHazardPercent.innerText = `${pct}%`;
+        if (fsHazardProgressBar) fsHazardProgressBar.style.width = `${pct}%`;
 
         let foundList = record.found_hazards || [];
         if (typeof foundList === 'string') {
@@ -653,10 +818,17 @@
     });
 
     // Native Fullscreen handler: adapts smoothly when entering and exiting fullscreen
-    document.addEventListener('fullscreenchange', () => {
+    function handleFullscreenChange() {
         const container = document.getElementById('vrMonitorScreenContainer');
         const video = document.getElementById('vrLiveCastVideo');
-        if (document.fullscreenElement) {
+        const hudOverlay = document.getElementById('vrFullscreenHudOverlay');
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+
+        if (isFs) {
+            if (hudOverlay) {
+                hudOverlay.classList.remove('hidden');
+                hudOverlay.classList.add('flex');
+            }
             if (container) {
                 container.style.maxWidth = '100vw';
                 container.style.width = '100vw';
@@ -668,6 +840,10 @@
                 video.classList.add('object-contain');
             }
         } else {
+            if (hudOverlay) {
+                hudOverlay.classList.add('hidden');
+                hudOverlay.classList.remove('flex');
+            }
             if (video) {
                 video.classList.remove('object-contain');
                 video.classList.add('object-cover');
@@ -678,5 +854,22 @@
                 resetMonitorContainerFit();
             }
         }
+    }
+
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+        document.addEventListener(evt, handleFullscreenChange);
     });
 </script>
+
+<style>
+    /* Fullscreen HUD Overlay Behavior */
+    #vrFullscreenHudOverlay {
+        display: none;
+    }
+    #vrMonitorScreenContainer:fullscreen #vrFullscreenHudOverlay,
+    #vrMonitorScreenContainer:-webkit-full-screen #vrFullscreenHudOverlay,
+    #vrMonitorScreenContainer:-moz-full-screen #vrFullscreenHudOverlay,
+    #vrMonitorScreenContainer:-ms-fullscreen #vrFullscreenHudOverlay {
+        display: flex !important;
+    }
+</style>
