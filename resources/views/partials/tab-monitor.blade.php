@@ -123,8 +123,8 @@
     <!-- 3. Bottom Sections: Active Trainee Operator & Live Hazards Found (Visible without scrolling) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
-        <!-- Card 1: Active Trainee Operator (Span 5) -->
-        <div class="lg:col-span-5 space-y-3">
+        <!-- Card 1: Active Trainee Operator (Span 6) -->
+        <div class="lg:col-span-6 space-y-3">
             <div class="glass-sheet p-4 rounded-2xl border-white/10 space-y-3 shadow-xl">
                 <div class="flex items-center justify-between pb-1.5 border-b border-white/5">
                     <div class="flex items-center gap-2">
@@ -141,48 +141,36 @@
                     </div>
                 </div>
 
-                <!-- 4 Telemetry Rows: Current Trainee, Score, Wrong Clicks, Hazard -->
-                <div class="space-y-2 font-mono text-xs">
-                    <!-- Row 1: Current Trainee -->
-                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
-                            <span>👤</span>
-                            <span>Current Trainee:</span>
-                        </div>
-                        <span id="displayTraineeName" class="font-mono tracking-wide font-black {{ $hasActive ? 'text-sm text-white' : 'text-xs text-slate-400 italic' }}">
+                <!-- 4 Telemetry Columns: Current Trainee, Score, Wrong Clicks, Hazard -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-xs">
+                    <!-- Column 1: Current Trainee -->
+                    <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col justify-between">
+                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Current Trainee</span>
+                        <span id="displayTraineeName" class="font-mono tracking-wide font-black truncate block mt-1.5 {{ $hasActive ? 'text-sm text-white' : 'text-xs text-slate-400 italic' }}" title="{{ $hasActive ? $traineeName : 'No trainee active yet' }}">
                             {{ $hasActive ? $traineeName : 'No trainee active yet' }}
                         </span>
                     </div>
 
-                    <!-- Row 2: Score -->
-                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
-                            <span>🎯</span>
-                            <span>Score:</span>
-                        </div>
-                        <span id="displayCardScore" class="text-sm font-black text-amber-400">
+                    <!-- Column 2: Score -->
+                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
+                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Score</span>
+                        <span id="displayCardScore" class="text-sm font-black text-amber-400 block mt-1.5">
                             {{ number_format($traineeScore, 1) }}%
                         </span>
                     </div>
 
-                    <!-- Row 3: Wrong Clicks -->
-                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
-                            <span>❌</span>
-                            <span>Wrong Clicks:</span>
-                        </div>
-                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400">
+                    <!-- Column 3: Wrong Clicks -->
+                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
+                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Wrong Clicks</span>
+                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400 block mt-1.5">
                             {{ $hasActive ? (int)($activeTrainee['wrong_clicks'] ?? 0) : 0 }}
                         </span>
                     </div>
 
-                    <!-- Row 4: Hazard -->
-                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
-                            <span>⚠️</span>
-                            <span>Hazard:</span>
-                        </div>
-                        <span class="text-sm font-black text-emerald-400">
+                    <!-- Column 4: Hazard -->
+                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
+                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Hazard</span>
+                        <span class="text-sm font-black text-emerald-400 block mt-1.5">
                             <span id="displayCardHazardCount">{{ $hazardsFoundCount }}</span>
                             <span class="text-slate-500 text-xs font-semibold">/ 13</span>
                         </span>
@@ -191,8 +179,8 @@
             </div>
         </div>
 
-        <!-- Card 2: Live Hazards Found Appearance & Checklist (Span 7) -->
-        <div class="lg:col-span-7 space-y-3">
+        <!-- Card 2: Live Hazards Found Appearance & Checklist (Span 6) -->
+        <div class="lg:col-span-6 space-y-3">
             <div class="glass-sheet p-4 rounded-2xl border-amber-500/20 space-y-3 shadow-xl">
                 <div class="flex items-center justify-between pb-1.5 border-b border-white/5">
                     <div class="flex items-center gap-2">
