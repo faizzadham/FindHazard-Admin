@@ -638,9 +638,13 @@ class TraineeResultController extends Controller
         $wrongClicks = (int) $record->wrong_clicks;
         $foundCount = (int) $record->hazards_found;
         $missedCount = (int) $record->hazards_missed;
+        $totalHazards = 13;
+        $penaltyPercent = $wrongClicks * 5;
+
         $timeMins = floor($record->completion_time / 60);
         $timeSecs = round(fmod($record->completion_time, 60));
         $timeFormatted = "{$timeMins}m " . sprintf('%02ds', $timeSecs);
+        $scoreFormatted = number_format($score, 1) . '%';
 
         $perfectAreas = [];
         $partialAreas = [];
@@ -656,41 +660,96 @@ class TraineeResultController extends Controller
             }
         }
 
-        // Tier Grade & Verdict
+        $allDeficient = array_merge($partialAreas, $deficientAreas);
+        $deficientText = !empty($allDeficient) ? ' in ' . implode(', ', $allDeficient) : '';
+
+        // Formulate misclick phrasing
+        $misclickPhrase = match (true) {
+            $wrongClicks === 0 => 'flawless trigger discipline with zero false-alarm misclicks',
+            $wrongClicks === 1 => '1 safe-object distraction click (-5% penalty)',
+            default            => "{$wrongClicks} safe-object distraction clicks (-{$penaltyPercent}% penalty)",
+        };
+
+        // Formulate hazard detection phrasing
+        $detectionPhrase = match (true) {
+            $missedCount === 0 => "all {$totalHazards} warehouse hazards across all " . count($areaBreakdown) . " operational zones (100% detection coverage)",
+            $foundCount === 0  => "zero warehouse hazards",
+            default            => "{$foundCount} out of {$totalHazards} hazards",
+        };
+
+        // Determine Evaluation Tier & Verdict
         if ($score >= 100.0 && $wrongClicks === 0) {
             $grade = 'Grade A+ (Elite)';
             $gradeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-sm shadow-emerald-500/20';
             $headline = 'Exemplary Master Inspector — Flawless Warehouse Hazard Detection';
             $verdictType = 'success';
-            $narrative = "Trainee {$record->username} delivered a flawless VR warehouse inspection with an extraordinary 100.0% score in {$timeFormatted}. Demonstrating supreme situational awareness, zero false-alarm misclicks were triggered, and all 13 critical warehouse hazards across all 6 operational zones were identified with high precision. Fully verified for unrestricted aviation cargo operations.";
+            $narrative = "Trainee {$record->username} delivered a flawless VR warehouse inspection with an extraordinary 100.0% score in {$timeFormatted}. Demonstrating supreme situational awareness, zero false-alarm misclicks were triggered, and all {$totalHazards} critical warehouse hazards across all 6 operational zones were identified with high precision. Fully verified for unrestricted aviation cargo operations.";
+
         } elseif ($score >= 90.0) {
             $grade = 'Grade A (Superior)';
             $gradeBadgeClass = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
             $headline = 'Distinguished Lead Inspector — High Proficiency Across Operational Zones';
             $verdictType = 'success';
-            $penaltyText = $wrongClicks > 0 ? " A minor penalty of -" . ($wrongClicks * 5) . "% was incurred for {$wrongClicks} safe-object distraction click(s)." : " Flawless click discipline with zero misclicks recorded.";
-            $narrative = "Trainee {$record->username} demonstrated superior inspection competency, securing a " . number_format($score, 1) . "% overall score in {$timeFormatted}. The trainee detected {$foundCount} out of 13 hazards with complete mastery in " . count($perfectAreas) . " zones.{$penaltyText} Strongly recommended for active warehouse safety certification.";
+            $penaltyText = $wrongClicks > 0
+                ? " A minor penalty of -{$penaltyPercent}% was incurred for {$misclickPhrase}."
+                : " Flawless click discipline with zero misclicks recorded.";
+            $narrative = "Trainee {$record->username} demonstrated superior inspection competency, securing a {$scoreFormatted} overall score in {$timeFormatted}. The trainee detected {$detectionPhrase} with complete mastery in " . count($perfectAreas) . " zones.{$penaltyText} Strongly recommended for active warehouse safety certification.";
+
         } elseif ($score >= 80.0) {
             $grade = 'Grade B+ (Compliant)';
             $gradeBadgeClass = 'bg-teal-500/15 text-teal-300 border-teal-500/30';
             $headline = 'Safety Standard Met — Certified for Warehouse Operations';
             $verdictType = 'info';
-            $penaltyText = $wrongClicks > 0 ? " Noted {$wrongClicks} misclick(s) resulting in a -" . ($wrongClicks * 5) . "% penalty deduction." : " Satisfactory trigger control with 0 distraction clicks.";
-            $narrative = "Trainee {$record->username} successfully satisfied safety qualification thresholds, earning a certified score of " . number_format($score, 1) . "% in {$timeFormatted}. The inspection isolated {$foundCount} safety hazards across primary staging corridors.{$penaltyText} Candidate possesses satisfactory situational awareness to operate safely under supervisor guidance.";
+            $penaltyText = $wrongClicks > 0
+                ? " Noted {$misclickPhrase}."
+                : " Satisfactory trigger control with 0 distraction clicks.";
+            $narrative = "Trainee {$record->username} successfully satisfied safety qualification thresholds, earning a certified score of {$scoreFormatted} in {$timeFormatted}. The inspection isolated {$detectionPhrase}.{$penaltyText} Candidate possesses satisfactory situational awareness to operate safely under supervisor guidance.";
+
         } elseif ($score >= 70.0) {
             $grade = 'Grade C (Conditional)';
             $gradeBadgeClass = 'bg-amber-500/15 text-amber-300 border-amber-500/30';
-            $headline = 'Retest Mandatory — Marginal Deficiency Below Qualification Threshold';
             $verdictType = 'warning';
-            $gapsText = !empty($deficientAreas) ? " Overlooked critical hazards in " . implode(', ', $deficientAreas) . "." : "";
-            $penaltyText = $wrongClicks > 0 ? " Misclick penalties (-" . ($wrongClicks * 5) . "%) compounded the score deficit." : "";
-            $narrative = "Trainee {$record->username} recorded a score of " . number_format($score, 1) . "%, narrowly missing the 80.0% passing mark. While {$foundCount} hazards were recognized in {$timeFormatted}, {$missedCount} vital risks were bypassed.{$gapsText}{$penaltyText} Qualification cannot be approved at this time; a targeted zone re-drill is mandatory.";
+
+            if ($missedCount === 0) {
+                // All hazards spotted, but pulled down by misclicks
+                $headline = 'Retest Required — Flawless Detection Compromised by Misclick Penalties';
+                $narrative = "Trainee {$record->username} recorded a score of {$scoreFormatted}, narrowly missing the 80.0% passing benchmark. While all {$totalHazards} hazards were successfully recognized (100% detection coverage) in {$timeFormatted}, {$misclickPhrase} reduced the final score below the qualification mark. Candidate exhibits complete hazard perception; targeted trigger discipline practice is required prior to drill reassessment.";
+            } else {
+                $headline = 'Retest Mandatory — Marginal Deficiency Below Qualification Threshold';
+                $gapsText = !empty($deficientAreas) ? " Overlooked critical hazards in " . implode(', ', $deficientAreas) . "." : "";
+                $penaltyText = $wrongClicks > 0 ? " Misclick penalties (-{$penaltyPercent}%) compounded the score deficit." : "";
+                $missedPhrase = $missedCount === 1 ? '1 vital risk was bypassed' : "{$missedCount} vital risks were bypassed";
+                $narrative = "Trainee {$record->username} recorded a score of {$scoreFormatted}, narrowly missing the 80.0% passing mark. While {$foundCount} hazards were recognized in {$timeFormatted}, {$missedPhrase}.{$gapsText}{$penaltyText} Qualification cannot be approved at this time; a targeted zone re-drill is mandatory.";
+            }
+
         } else {
-            $grade = 'Grade D (Needs Review)';
+            // Score < 70.0% (Grade D)
             $gradeBadgeClass = 'bg-rose-500/15 text-rose-300 border-rose-500/30';
-            $headline = 'Action Required — Substantial Safety Hazards Overlooked in VR Drill';
             $verdictType = 'danger';
-            $narrative = "Trainee {$record->username} scored " . number_format($score, 1) . "%, falling substantially below the 80.0% safety benchmark. {$missedCount} hazards went unidentified across multiple zones in {$timeFormatted}" . ($wrongClicks > 0 ? ", alongside {$wrongClicks} distraction click(s) (-" . ($wrongClicks * 5) . "%)" : "") . ". Intensive safety retraining across freight handling bays is required prior to drill reassessment.";
+
+            if ($missedCount === 0) {
+                // SPECIAL CASE (Fahkri's case): 100% of hazards found across all zones, but heavily penalized by wrong clicks!
+                $grade = 'Grade D (Trigger Discipline Review)';
+                $headline = 'Trigger Discipline Deficit — 100% Hazard Coverage Compromised by False Alarms';
+                $narrative = "Trainee {$record->username} demonstrated comprehensive visual hazard recognition, successfully identifying all {$totalHazards} warehouse hazards across all 6 operational zones in {$timeFormatted}. However, the final score fell to {$scoreFormatted} strictly due to {$misclickPhrase}. While the candidate possesses complete hazard awareness, intensive trigger discipline and false-alarm prevention training is required prior to drill reassessment.";
+            } elseif ($foundCount >= 10 && $wrongClicks >= 4) {
+                // High detection coverage (>= 10/13), but severely penalized by misclicks
+                $grade = 'Grade D (Trigger Discipline Review)';
+                $headline = 'Trigger Discipline Deficit — High Hazard Detection Compromised by False Alarms';
+                $narrative = "Trainee {$record->username} demonstrated solid hazard detection, recognizing {$foundCount} out of {$totalHazards} hazards across " . count($perfectAreas) . " zones in {$timeFormatted}. However, the score dropped to {$scoreFormatted} primarily due to {$misclickPhrase}. Candidate must practice deliberate confirmation before clicking to eliminate safe-object false alarms prior to drill reassessment.";
+            } elseif ($wrongClicks <= 2) {
+                // Pure hazard detection deficiency (good trigger discipline, but missed hazards)
+                $grade = 'Grade D (Needs Review)';
+                $missedPhrase = $missedCount === 1 ? '1 hazard went unidentified' : "{$missedCount} hazards went unidentified";
+                $headline = "Action Required — {$missedCount} Safety Hazards Overlooked in VR Drill";
+                $narrative = "Trainee {$record->username} scored {$scoreFormatted}, falling substantially below the 80.0% safety benchmark. {$missedPhrase}{$deficientText} in {$timeFormatted}, despite disciplined trigger control ({$wrongClicks} misclick(s)). Intensive safety retraining across overlooked freight handling bays is required prior to drill reassessment.";
+            } else {
+                // Composite deficiency: Both missed hazards AND high misclicks
+                $grade = 'Grade D (Needs Review)';
+                $missedPhrase = $missedCount === 1 ? '1 hazard went unidentified' : "{$missedCount} hazards went unidentified";
+                $headline = 'Action Required — Composite Hazard Oversight and False-Alarm Penalties';
+                $narrative = "Trainee {$record->username} scored {$scoreFormatted}, falling substantially below the 80.0% safety benchmark. {$missedPhrase}{$deficientText} in {$timeFormatted}, alongside {$misclickPhrase}. Comprehensive safety retraining covering both zone hazard identification and click precision is required prior to drill reassessment.";
+            }
         }
 
         return [
@@ -700,10 +759,10 @@ class TraineeResultController extends Controller
             'narrative' => $narrative,
             'verdict_type' => $verdictType,
             'perfect_areas' => $perfectAreas,
-            'deficient_areas' => array_merge($partialAreas, $deficientAreas),
+            'deficient_areas' => $allDeficient,
             'wrong_clicks_commentary' => $wrongClicks === 0
                 ? "100% Trigger Discipline (0 safe objects misclicked)"
-                : "{$wrongClicks} Distraction Misclick(s) (-" . ($wrongClicks * 5) . "% score penalty applied)",
+                : "{$wrongClicks} Distraction Misclick(s) (-{$penaltyPercent}% score penalty applied)",
             'time_commentary' => "Completed full warehouse scan in {$timeFormatted} (" . number_format($record->completion_time, 1) . "s total velocity)",
         ];
     }
