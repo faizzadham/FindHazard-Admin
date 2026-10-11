@@ -27,6 +27,9 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                     <span>AWAITING MQDH CAST</span>
                 </span>
+                <span id="castResBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 border border-emerald-500/25 text-emerald-300">
+                    16:9
+                </span>
                 <span id="liveMonitorTimerBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                     <span id="liveMonitorTimer">00:00.0</span>
@@ -49,6 +52,12 @@
                 <span>✕</span><span>Disconnect</span>
             </button>
 
+            <!-- Video Fit Mode Toggle (Fill / Contain) -->
+            <button id="btnToggleVideoFit" onclick="toggleVideoFitMode()" 
+                class="hidden glass-card px-3 py-1.5 rounded-xl text-slate-300 hover:text-white border border-white/10 transition font-mono flex items-center gap-1.5 cursor-pointer" title="Toggle Cast Fit Mode (Fill / Contain)">
+                <span id="fitModeIcon">📐</span><span id="fitModeLabel">Fit: Fill</span>
+            </button>
+
             <button onclick="toggleMonitorFullscreen()" 
                 class="glass-card px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition font-mono flex items-center gap-1.5 cursor-pointer" title="Toggle Fullscreen">
                 <span>⛶</span><span>Fullscreen</span>
@@ -56,67 +65,68 @@
         </div>
     </div>
 
-    <!-- 2. Compact Live VR Monitor Viewport (Decreased height so cards fit on screen without scrolling) -->
+    <!-- 2. Compact Live VR Monitor Viewport (Centered, Proportional Fit, No Stretched Width) -->
     <div class="space-y-2">
-        <div id="vrMonitorScreenContainer" class="relative bg-neutral-950 rounded-2xl overflow-hidden border border-white/10 shadow-xl w-full h-[240px] sm:h-[280px] md:h-[310px] flex items-center justify-center group">
+        <div class="flex justify-center w-full">
+            <div id="vrMonitorScreenContainer" class="relative bg-neutral-950 rounded-2xl overflow-hidden border border-white/10 shadow-2xl w-full max-w-[534px] h-[250px] sm:h-[280px] md:h-[300px] flex items-center justify-center group transition-all duration-300 mx-auto">
 
-            <!-- Live WebRTC / DisplayMedia Video Player (Clean screen, edge overlays removed) -->
-            <video id="vrLiveCastVideo" autoplay playsinline muted disablepictureinpicture controlslist="nodownload nopictureinpicture" class="w-full h-full object-contain bg-black hidden"></video>
+                <!-- Live WebRTC / DisplayMedia Video Player -->
+                <video id="vrLiveCastVideo" autoplay playsinline muted disablepictureinpicture controlslist="nodownload nopictureinpicture" class="w-full h-full object-cover bg-black hidden"></video>
 
-            <!-- Standby / Connect Screen (Compact & Sleek) -->
-            <div id="vrCastStandbyScreen" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center space-y-2.5 bg-gradient-to-b from-neutral-900/90 via-neutral-950 to-neutral-950">
-                <div class="relative">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/10">
-                        🥽
+                <!-- Standby / Connect Screen (Compact & Sleek) -->
+                <div id="vrCastStandbyScreen" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center space-y-2.5 bg-gradient-to-b from-neutral-900/90 via-neutral-950 to-neutral-950">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/10">
+                            🥽
+                        </div>
+                        <span class="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-400 animate-ping opacity-75"></span>
+                        <span class="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-400"></span>
                     </div>
-                    <span class="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-400 animate-ping opacity-75"></span>
-                    <span class="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-400"></span>
+
+                    <div class="max-w-md space-y-1">
+                        <h2 class="text-sm sm:text-base font-black text-white tracking-wide uppercase">
+                            Meta Quest Developer Hub Live Cast
+                        </h2>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            Stream the trainee's Quest 3 POV directly into this dashboard using MQDH Device Cast over USB.
+                        </p>
+                    </div>
+
+                    <!-- Quick Steps -->
+                    <div class="hidden sm:grid grid-cols-3 gap-2 text-left max-w-md w-full text-[10px] font-mono">
+                        <div class="p-2 rounded-xl glass-card border-white/5">
+                            <span class="text-amber-400 font-bold block">1. Open MQDH</span>
+                            <span class="text-slate-400 text-[9.5px]">Open MQDH on PC.</span>
+                        </div>
+                        <div class="p-2 rounded-xl glass-card border-white/5">
+                            <span class="text-amber-400 font-bold block">2. Device Cast</span>
+                            <span class="text-slate-400 text-[9.5px]">Click Device Cast.</span>
+                        </div>
+                        <div class="p-2 rounded-xl glass-card border-white/5">
+                            <span class="text-amber-400 font-bold block">3. Connect</span>
+                            <span class="text-slate-400 text-[9.5px]">Select cast window.</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-1">
+                        <button onclick="connectMqdhCast()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 text-neutral-950 font-black text-xs transition shadow-md shadow-amber-500/25 flex items-center gap-1.5 cursor-pointer">
+                            <span>🥽</span><span>Select MQDH Cast Window →</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="max-w-md space-y-1">
-                    <h2 class="text-sm sm:text-base font-black text-white tracking-wide uppercase">
-                        Meta Quest Developer Hub Live Cast
-                    </h2>
-                    <p class="text-[11px] text-slate-400 leading-relaxed">
-                        Stream the trainee's Quest 3 POV directly into this dashboard using MQDH Device Cast over USB.
-                    </p>
-                </div>
-
-                <!-- Quick Steps -->
-                <div class="hidden sm:grid grid-cols-3 gap-2 text-left max-w-md w-full text-[10px] font-mono">
-                    <div class="p-2 rounded-xl glass-card border-white/5">
-                        <span class="text-amber-400 font-bold block">1. Open MQDH</span>
-                        <span class="text-slate-400 text-[9.5px]">Open MQDH on PC.</span>
-                    </div>
-                    <div class="p-2 rounded-xl glass-card border-white/5">
-                        <span class="text-amber-400 font-bold block">2. Device Cast</span>
-                        <span class="text-slate-400 text-[9.5px]">Click Device Cast.</span>
-                    </div>
-                    <div class="p-2 rounded-xl glass-card border-white/5">
-                        <span class="text-amber-400 font-bold block">3. Connect</span>
-                        <span class="text-slate-400 text-[9.5px]">Select cast window.</span>
-                    </div>
-                </div>
-
-                <div class="pt-1">
-                    <button onclick="connectMqdhCast()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 text-neutral-950 font-black text-xs transition shadow-md shadow-amber-500/25 flex items-center gap-1.5 cursor-pointer">
-                        <span>🥽</span><span>Select MQDH Cast Window →</span>
-                    </button>
-                </div>
             </div>
-
         </div>
 
         <!-- Helper caption below monitor -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[11px] text-slate-400 font-mono px-1">
+        <div id="vrMonitorCaptionBar" class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[11px] text-slate-400 font-mono px-1 max-w-[534px] mx-auto w-full transition-all duration-300">
             <span class="flex items-center gap-1.5">
                 <span class="text-amber-400">💡</span>
-                <span>To stream: Open MQDH &rarr; Click Cast &rarr; Click "Connect MQDH Cast" in this dashboard.</span>
+                <span>To stream: Open MQDH &rarr; Click Cast &rarr; Click "Connect MQDH Cast".</span>
             </span>
             <span id="syncIndicatorStatus" class="font-semibold flex items-center gap-1 text-emerald-400">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Listening for VR Headset...</span>
-            </span>
         </div>
     </div>
 
@@ -283,6 +293,101 @@
     let liveTimerInterval = null;
     let liveTimerSeconds = 0;
     let autoSyncInterval = null;
+    let currentVideoFitMode = 'cover'; // 'cover' (edge-to-edge fill) or 'contain' (proportional letterbox)
+
+    // Dynamically fit the live monitor container to match the stream aspect ratio
+    function fitMonitorToStream() {
+        const video = document.getElementById('vrLiveCastVideo');
+        const container = document.getElementById('vrMonitorScreenContainer');
+        const captionBar = document.getElementById('vrMonitorCaptionBar');
+        const resBadge = document.getElementById('castResBadge');
+        if (!video || !container) return;
+
+        // If in native Fullscreen mode, fill display 100%
+        if (document.fullscreenElement) {
+            container.style.width = '100vw';
+            container.style.maxWidth = '100vw';
+            container.style.height = '100vh';
+            container.style.aspectRatio = 'auto';
+            if (captionBar) captionBar.style.maxWidth = '100vw';
+            return;
+        }
+
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+
+        if (vw && vh) {
+            const streamRatio = vw / vh;
+            // Height target keeps metrics and hazards cards visible above fold without scrolling
+            const targetHeight = window.innerWidth < 640 ? 250 : (window.innerWidth < 1024 ? 280 : 300);
+            let targetWidth = Math.round(targetHeight * streamRatio);
+
+            // Ensure width doesn't blow past viewport on smaller displays
+            const maxWidthAllowed = Math.max(280, window.innerWidth - 48);
+            if (targetWidth > maxWidthAllowed) {
+                targetWidth = maxWidthAllowed;
+            }
+
+            container.style.height = `${targetHeight}px`;
+            container.style.aspectRatio = `${vw} / ${vh}`;
+            container.style.maxWidth = `${targetWidth}px`;
+            container.style.width = '100%';
+
+            if (captionBar) {
+                captionBar.style.maxWidth = `${targetWidth}px`;
+            }
+
+            // Update resolution & aspect ratio badge
+            if (resBadge) {
+                let ratioLabel = '16:9';
+                if (Math.abs(streamRatio - 1.333) < 0.1) ratioLabel = '4:3';
+                else if (Math.abs(streamRatio - 1.0) < 0.1) ratioLabel = '1:1';
+                else if (Math.abs(streamRatio - 1.6) < 0.1) ratioLabel = '16:10';
+                else if (Math.abs(streamRatio - 1.777) < 0.1) ratioLabel = '16:9';
+
+                resBadge.innerText = `${ratioLabel} (${vw}×${vh})`;
+                resBadge.classList.remove('hidden');
+            }
+        }
+    }
+
+    // Reset monitor container to default standby dimensions
+    function resetMonitorContainerFit() {
+        const container = document.getElementById('vrMonitorScreenContainer');
+        const captionBar = document.getElementById('vrMonitorCaptionBar');
+        const resBadge = document.getElementById('castResBadge');
+        if (container) {
+            container.style.width = '';
+            container.style.maxWidth = '';
+            container.style.height = '';
+            container.style.aspectRatio = '';
+        }
+        if (captionBar) {
+            captionBar.style.maxWidth = '';
+        }
+        if (resBadge) {
+            resBadge.classList.add('hidden');
+        }
+    }
+
+    // Toggle Fit Mode between 'cover' (edge-to-edge fill) and 'contain' (proportional fit)
+    function toggleVideoFitMode() {
+        const video = document.getElementById('vrLiveCastVideo');
+        const label = document.getElementById('fitModeLabel');
+        if (!video) return;
+
+        if (currentVideoFitMode === 'cover') {
+            currentVideoFitMode = 'contain';
+            video.classList.remove('object-cover');
+            video.classList.add('object-contain');
+            if (label) label.innerText = 'Fit: Contain';
+        } else {
+            currentVideoFitMode = 'cover';
+            video.classList.remove('object-contain');
+            video.classList.add('object-cover');
+            if (label) label.innerText = 'Fit: Fill';
+        }
+    }
 
     // Connect to Meta Quest Developer Hub (MQDH) Cast Window
     async function connectMqdhCast(isAuto = false) {
@@ -300,6 +405,7 @@
             const video = document.getElementById('vrLiveCastVideo');
             const standby = document.getElementById('vrCastStandbyScreen');
             const disconnectBtn = document.getElementById('btnDisconnectCast');
+            const fitBtn = document.getElementById('btnToggleVideoFit');
             const statusBadge = document.getElementById('castStatusBadge');
             const timerBadge = document.getElementById('liveMonitorTimerBadge');
 
@@ -310,10 +416,17 @@
                 }
                 video.srcObject = vrCastMediaStream;
                 video.classList.remove('hidden');
-                video.play().catch(() => {});
+                video.classList.remove('object-contain', 'object-cover');
+                video.classList.add(currentVideoFitMode === 'cover' ? 'object-cover' : 'object-contain');
+
+                video.onloadedmetadata = () => fitMonitorToStream();
+                video.onresize = () => fitMonitorToStream();
+
+                video.play().then(() => fitMonitorToStream()).catch(() => {});
             }
             if (standby) standby.classList.add('hidden');
             if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+            if (fitBtn) fitBtn.classList.remove('hidden');
             if (timerBadge) timerBadge.classList.remove('hidden');
             if (statusBadge) {
                 statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span><span class="text-emerald-300 font-bold">LIVE VR STREAM</span>';
@@ -324,6 +437,10 @@
             vrCastMediaStream.getVideoTracks()[0].onended = () => {
                 disconnectMqdhCast();
             };
+
+            fitMonitorToStream();
+            setTimeout(fitMonitorToStream, 300);
+            setTimeout(fitMonitorToStream, 1000);
 
             startLiveMonitorTimer();
             if (typeof showToast === 'function') {
@@ -355,6 +472,7 @@
         const video = document.getElementById('vrLiveCastVideo');
         const standby = document.getElementById('vrCastStandbyScreen');
         const disconnectBtn = document.getElementById('btnDisconnectCast');
+        const fitBtn = document.getElementById('btnToggleVideoFit');
         const statusBadge = document.getElementById('castStatusBadge');
         const timerBadge = document.getElementById('liveMonitorTimerBadge');
 
@@ -365,12 +483,14 @@
         }
         if (standby) standby.classList.remove('hidden');
         if (disconnectBtn) disconnectBtn.classList.add('hidden');
+        if (fitBtn) fitBtn.classList.add('hidden');
         if (timerBadge) timerBadge.classList.add('hidden');
         if (statusBadge) {
             statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span><span>AWAITING MQDH CAST</span>';
             statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white/[0.04] border border-white/10 text-slate-400 flex items-center gap-1.5';
         }
 
+        resetMonitorContainerFit();
         stopLiveMonitorTimer();
         if (typeof showToast === 'function') {
             showToast('Cast Disconnected', 'VR Monitor returned to standby screen.', 'ℹ️');
@@ -623,5 +743,40 @@
                 connectMqdhCast(true);
             }
         }, 700);
+    });
+
+    // Window resize handler: keeps monitor snug if browser window dimensions change
+    window.addEventListener('resize', () => {
+        if (vrCastMediaStream) {
+            fitMonitorToStream();
+        }
+    });
+
+    // Native Fullscreen handler: adapts smoothly when entering and exiting fullscreen
+    document.addEventListener('fullscreenchange', () => {
+        const container = document.getElementById('vrMonitorScreenContainer');
+        const video = document.getElementById('vrLiveCastVideo');
+        if (document.fullscreenElement) {
+            if (container) {
+                container.style.maxWidth = '100vw';
+                container.style.width = '100vw';
+                container.style.height = '100vh';
+                container.style.aspectRatio = 'auto';
+            }
+            if (video) {
+                video.classList.remove('object-cover');
+                video.classList.add('object-contain');
+            }
+        } else {
+            if (video) {
+                video.classList.remove('object-contain', 'object-cover');
+                video.classList.add(currentVideoFitMode === 'cover' ? 'object-cover' : 'object-contain');
+            }
+            if (vrCastMediaStream) {
+                fitMonitorToStream();
+            } else {
+                resetMonitorContainerFit();
+            }
+        }
     });
 </script>
