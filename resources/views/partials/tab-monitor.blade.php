@@ -285,9 +285,10 @@
     let autoSyncInterval = null;
 
     // Connect to Meta Quest Developer Hub (MQDH) Cast Window
-    async function connectMqdhCast() {
+    async function connectMqdhCast(isAuto = false) {
+        if (vrCastMediaStream) return;
         try {
-            // Prompts browser screen/window picker where supervisor selects "Meta Quest Developer Hub" Cast window
+            // Prompts browser screen/window picker (automatically bypassed with --auto-select-desktop-capture-source)
             vrCastMediaStream = await navigator.mediaDevices.getDisplayMedia({
                 video: {
                     displaySurface: 'window',
@@ -315,7 +316,7 @@
             if (disconnectBtn) disconnectBtn.classList.remove('hidden');
             if (timerBadge) timerBadge.classList.remove('hidden');
             if (statusBadge) {
-                statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span><span class="text-emerald-300 font-bold">LIVE MQDH STREAM</span>';
+                statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span><span class="text-emerald-300 font-bold">LIVE VR STREAM</span>';
                 statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5 shadow-sm shadow-emerald-500/20';
             }
 
@@ -326,12 +327,16 @@
 
             startLiveMonitorTimer();
             if (typeof showToast === 'function') {
-                showToast('MQDH Cast Connected', 'Meta Quest 3 stream live in monitor viewport.', '🥽');
+                showToast(isAuto ? 'VR Stream Auto-Connected' : 'MQDH Cast Connected', 'Meta Quest 3 stream live in monitor viewport.', '🥽');
             }
         } catch (err) {
-            console.error('MQDH Cast connection canceled or failed:', err);
-            if (typeof showToast === 'function') {
-                showToast('Connection Canceled', 'No cast window was selected.', '⚠️');
+            if (!isAuto) {
+                console.error('MQDH Cast connection canceled or failed:', err);
+                if (typeof showToast === 'function') {
+                    showToast('Connection Canceled', 'No cast window was selected.', '⚠️');
+                }
+            } else {
+                console.log('[AutoCast] Silent auto-connect standby (click Connect or launch with auto-select flag):', err.message);
             }
         }
     }
@@ -611,5 +616,12 @@
                 pollLiveSessionNow();
             }
         }, 2000);
+
+        // Attempt automatic VR video stream connection on launch
+        setTimeout(() => {
+            if (!vrCastMediaStream) {
+                connectMqdhCast(true);
+            }
+        }, 700);
     });
 </script>
