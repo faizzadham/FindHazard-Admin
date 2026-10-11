@@ -10,6 +10,11 @@ class TraineeResultController extends Controller
     // API Route: Receives session payload from Unity VR
     public function store(Request $request)
     {
+        $payload = $request->json()->all() ?: json_decode($request->getContent(), true) ?: $request->all();
+        if (!empty($payload)) {
+            $request->merge($payload);
+        }
+
         $validated = $request->validate([
             'username' => 'required|string|max:100',
             'score' => 'nullable|numeric',
