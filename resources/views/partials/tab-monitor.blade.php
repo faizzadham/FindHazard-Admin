@@ -225,14 +225,9 @@
                         <span class="text-sm">👤</span>
                         <h2 class="text-xs font-bold text-white uppercase tracking-wider">Active Trainee Operator</h2>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span id="badgeActiveStatus" class="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold {{ $hasActive ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-400 border border-white/10' }}">
-                            {{ $hasActive ? 'In VR Headset' : 'No Trainee Active' }}
-                        </span>
-                        <button onclick="clearActiveTraineeSession()" class="text-[9.5px] font-mono text-slate-500 hover:text-rose-400 transition cursor-pointer" title="Reset current active trainee">
-                            Reset
-                        </button>
-                    </div>
+                    <span id="badgeActiveStatus" class="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold {{ $hasActive ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-400 border border-white/10' }}">
+                        {{ $hasActive ? 'In VR Headset' : 'No Trainee Active' }}
+                    </span>
                 </div>
 
                 <!-- 4 Telemetry Columns: Current Trainee, Score, Wrong Clicks, Hazard -->
