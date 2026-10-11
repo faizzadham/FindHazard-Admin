@@ -634,12 +634,15 @@
             }
         }, 2000);
 
-        // Attempt automatic VR video stream connection on launch
-        setTimeout(() => {
-            if (!vrCastMediaStream) {
-                connectMqdhCast(true);
-            }
-        }, 700);
+        // Attempt automatic VR video stream connection only when launched via auto-launcher
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autoconnect') === '1') {
+            setTimeout(() => {
+                if (!vrCastMediaStream) {
+                    connectMqdhCast(true);
+                }
+            }, 800);
+        }
     });
 
     // Window resize handler: keeps monitor snug if browser window dimensions change
