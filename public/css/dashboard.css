@@ -301,21 +301,7 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-/* Telemetry Flash Glow (Triggers when live data updates) */
-.telemetry-flash {
-    animation: flashGlow 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes flashGlow {
-    0% {
-        background-color: rgba(245, 158, 11, 0.3);
-        box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
-    }
-    100% {
-        background-color: transparent;
-        box-shadow: none;
-    }
-}
+/* Telemetry Flash Glow removed to prevent yellow popping boxes */
 
 /* ==========================================================================
    Staggered Entrance Animation Utility

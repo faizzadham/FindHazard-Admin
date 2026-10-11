@@ -582,14 +582,8 @@ function initSvgScoreRings() {
 }
 
 function flashTelemetryHighlight(elOrId) {
-    const el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
-    if (!el) return;
-    el.classList.remove('telemetry-flash');
-    void el.offsetWidth; // Force CSS reflow to re-trigger animation
-    el.classList.add('telemetry-flash');
-    setTimeout(() => {
-        el.classList.remove('telemetry-flash');
-    }, 850);
+    // Disabled to prevent unwanted repetitive yellow flash boxes
+    return;
 }
 
 // Automatic Page Initialization based on current page elements

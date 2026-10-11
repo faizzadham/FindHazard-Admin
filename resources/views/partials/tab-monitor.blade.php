@@ -715,14 +715,6 @@
         }
         if (summaryLabel) summaryLabel.innerText = `${found} of 13 Found`;
 
-        // Telemetry Update Glow Animation
-        if (typeof flashTelemetryHighlight === 'function') {
-            flashTelemetryHighlight('displayCardScore');
-            flashTelemetryHighlight('displayWrongClicks');
-            flashTelemetryHighlight('displayCardHazardCount');
-            flashTelemetryHighlight('fsStatsCard');
-        }
-
         // Update Fullscreen HUD Elements with active telemetry
         const initials = (record.username || 'VR').substring(0, 2).toUpperCase();
         if (fsTraineeName) {
