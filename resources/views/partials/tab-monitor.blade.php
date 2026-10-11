@@ -107,7 +107,7 @@
                 <!-- ======================================================== -->
                 <!-- FULLSCREEN HUD OVERLAY (Visible only in Fullscreen Mode) -->
                 <!-- ======================================================== -->
-                <div id="vrFullscreenHudOverlay" class="absolute inset-0 pointer-events-none hidden flex-col justify-between p-6 sm:p-8 z-30 transition-all duration-300">
+                <div id="vrFullscreenHudOverlay" class="absolute inset-0 pointer-events-none hidden flex-col justify-between p-6 sm:p-8 z-[100] transition-all duration-300">
 
                     <!-- TOP ROW: Top-Left Trainee Card, Top-Right Score/Wrong Clicks/Hazard & Exit -->
                     <div class="flex items-start justify-between w-full gap-4">
@@ -513,9 +513,14 @@
     // Fullscreen Viewport Toggle
     function toggleMonitorFullscreen() {
         const container = document.getElementById('vrMonitorScreenContainer');
+        const hud = document.getElementById('vrFullscreenHudOverlay');
         if (!container) return;
         const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
         if (!isFs) {
+            if (hud) {
+                hud.style.setProperty('display', 'flex', 'important');
+                hud.classList.remove('hidden');
+            }
             if (container.requestFullscreen) {
                 container.requestFullscreen().catch(() => {});
             } else if (container.webkitRequestFullscreen) {
@@ -526,6 +531,10 @@
                 container.msRequestFullscreen();
             }
         } else {
+            if (hud) {
+                hud.style.setProperty('display', 'none', 'important');
+                hud.classList.add('hidden');
+            }
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch(() => {});
             } else if (document.webkitExitFullscreen) {
@@ -826,8 +835,8 @@
 
         if (isFs) {
             if (hudOverlay) {
+                hudOverlay.style.setProperty('display', 'flex', 'important');
                 hudOverlay.classList.remove('hidden');
-                hudOverlay.classList.add('flex');
             }
             if (container) {
                 container.style.maxWidth = '100vw';
@@ -841,8 +850,8 @@
             }
         } else {
             if (hudOverlay) {
+                hudOverlay.style.setProperty('display', 'none', 'important');
                 hudOverlay.classList.add('hidden');
-                hudOverlay.classList.remove('flex');
             }
             if (video) {
                 video.classList.remove('object-contain');
@@ -862,14 +871,11 @@
 </script>
 
 <style>
-    /* Fullscreen HUD Overlay Behavior */
-    #vrFullscreenHudOverlay {
-        display: none;
+    /* Fullscreen HUD Overlay Behavior: Separate rules prevent parser dropping */
+    #vrMonitorScreenContainer:fullscreen #vrFullscreenHudOverlay {
+        display: flex !important;
     }
-    #vrMonitorScreenContainer:fullscreen #vrFullscreenHudOverlay,
-    #vrMonitorScreenContainer:-webkit-full-screen #vrFullscreenHudOverlay,
-    #vrMonitorScreenContainer:-moz-full-screen #vrFullscreenHudOverlay,
-    #vrMonitorScreenContainer:-ms-fullscreen #vrFullscreenHudOverlay {
+    #vrMonitorScreenContainer:-webkit-full-screen #vrFullscreenHudOverlay {
         display: flex !important;
     }
 </style>

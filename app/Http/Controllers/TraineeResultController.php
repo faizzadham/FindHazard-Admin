@@ -109,6 +109,19 @@ class TraineeResultController extends Controller
     public function monitor()
     {
         $activeTrainee = \Illuminate\Support\Facades\Cache::get('active_vr_trainee');
+        if (!$activeTrainee) {
+            $latest = TraineeResult::latest()->first();
+            if ($latest) {
+                $activeTrainee = [
+                    'username' => $latest->username,
+                    'hazards_found' => (int) $latest->hazards_found,
+                    'wrong_clicks' => (int) $latest->wrong_clicks,
+                    'score' => (float) $latest->score,
+                    'completion_time' => (float) $latest->completion_time,
+                    'found_hazards' => $latest->found_hazards,
+                ];
+            }
+        }
         $warehouseAreas = $this->getWarehouseAreasConfig();
 
         $allHazards = [];
@@ -143,6 +156,19 @@ class TraineeResultController extends Controller
         }
 
         $activeTrainee = \Illuminate\Support\Facades\Cache::get('active_vr_trainee');
+        if (!$activeTrainee) {
+            $latest = TraineeResult::latest()->first();
+            if ($latest) {
+                $activeTrainee = [
+                    'username' => $latest->username,
+                    'hazards_found' => (int) $latest->hazards_found,
+                    'wrong_clicks' => (int) $latest->wrong_clicks,
+                    'score' => (float) $latest->score,
+                    'completion_time' => (float) $latest->completion_time,
+                    'found_hazards' => $latest->found_hazards,
+                ];
+            }
+        }
 
         return response()->json([
             'status' => 'success',
