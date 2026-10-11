@@ -141,59 +141,52 @@
                     </div>
                 </div>
 
-                <!-- Live Trainee Name Banner -->
-                <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
-                    <div>
-                        <span class="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider block">Current Trainee:</span>
-                        <span id="displayTraineeName" class="font-mono tracking-wide block mt-0.5 {{ $hasActive ? 'text-base font-black text-white' : 'text-xs font-semibold text-slate-400 italic' }}">
+                <!-- 4 Telemetry Rows: Current Trainee, Score, Wrong Clicks, Hazard -->
+                <div class="space-y-2 font-mono text-xs">
+                    <!-- Row 1: Current Trainee -->
+                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
+                            <span>👤</span>
+                            <span>Current Trainee:</span>
+                        </div>
+                        <span id="displayTraineeName" class="font-mono tracking-wide font-black {{ $hasActive ? 'text-sm text-white' : 'text-xs text-slate-400 italic' }}">
                             {{ $hasActive ? $traineeName : 'No trainee active yet' }}
                         </span>
                     </div>
-                    <div id="displayTraineeAvatar" class="w-9 h-9 rounded-xl border flex items-center justify-center font-black text-xs {{ $hasActive ? 'bg-amber-400/20 border-amber-400/30 text-amber-300' : 'bg-white/5 border-white/10 text-slate-500' }}">
-                        VR
-                    </div>
-                </div>
 
-                <!-- Live Session Telemetry Metrics Grid (Compact 4-Card) -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-2 font-mono text-xs">
-                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5">
-                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Score</span>
-                        <span id="displayCardScore" class="text-sm font-black text-amber-400 block">
+                    <!-- Row 2: Score -->
+                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
+                            <span>🎯</span>
+                            <span>Score:</span>
+                        </div>
+                        <span id="displayCardScore" class="text-sm font-black text-amber-400">
                             {{ number_format($traineeScore, 1) }}%
                         </span>
                     </div>
 
-                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5">
-                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Wrong Clicks</span>
-                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400 block">
+                    <!-- Row 3: Wrong Clicks -->
+                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
+                            <span>❌</span>
+                            <span>Wrong Clicks:</span>
+                        </div>
+                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400">
                             {{ $hasActive ? (int)($activeTrainee['wrong_clicks'] ?? 0) : 0 }}
                         </span>
                     </div>
 
-                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5">
-                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Hazards</span>
-                        <span class="text-sm font-black text-emerald-400 block">
-                            <span id="displayCardHazardCount">{{ $hazardsFoundCount }}</span> / 13
+                    <!-- Row 4: Hazard -->
+                    <div class="p-2.5 px-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
+                            <span>⚠️</span>
+                            <span>Hazard:</span>
+                        </div>
+                        <span class="text-sm font-black text-emerald-400">
+                            <span id="displayCardHazardCount">{{ $hazardsFoundCount }}</span>
+                            <span class="text-slate-500 text-xs font-semibold">/ 13</span>
                         </span>
                     </div>
-
-                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5">
-                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Time</span>
-                        <span id="displaySessionTime" class="text-sm font-black text-slate-300 block">
-                            {{ $hasActive && !empty($activeTrainee['completion_time']) ? sprintf('%02d:%02d', floor($activeTrainee['completion_time'] / 60), floor($activeTrainee['completion_time'] % 60)) : '00:00' }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Live VR Sync Notice -->
-                <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1 text-xs font-mono">
-                    <div class="flex items-center gap-1.5 text-amber-400 font-semibold text-[10.5px]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                        <span>VR Headset Automatic Sync</span>
-                    </div>
-                    <p class="text-[10px] text-slate-400 leading-relaxed">
-                        Trainee username and hazard spotting telemetry automatically update in real time via USB / Wi-Fi.
-                    </p>
                 </div>
             </div>
         </div>
