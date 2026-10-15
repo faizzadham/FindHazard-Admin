@@ -11,11 +11,15 @@ return new class extends Migration
         Schema::create('trainee_results', function (Blueprint $table) {
             $table->id();
             $table->string('username');
-            $table->integer('score');
-            $table->integer('hazards_found');
-            $table->integer('hazards_missed');
-            $table->float('completion_time'); // stored in seconds
-            $table->string('performance_rating'); // e.g., "Locked In", "Great", "Cooked"
+            $table->decimal('score', 5, 1)->default(0.0);
+            $table->integer('hazards_found')->default(0);
+            $table->integer('hazards_missed')->default(0);
+            $table->integer('wrong_clicks')->default(0);
+            $table->float('completion_time')->default(0.0); // stored in seconds
+            $table->string('performance_rating')->default('Needs Review'); // "Locked In", "Great", "Valid Effort", "Needs Review"
+            $table->boolean('is_certified')->default(false);
+            $table->json('found_hazards')->nullable();
+            $table->json('missed_hazards')->nullable();
             $table->timestamps();
         });
     }
