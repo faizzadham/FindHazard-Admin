@@ -15,7 +15,7 @@
                 <span>Trainee Directory &amp; Leaderboard</span>
                 <span class="text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full">/trainees</span>
             </h2>
-            <p class="text-xs text-slate-400">Searchable master directory &amp; top-to-bottom leaderboard with date filters and performance telemetry.</p>
+            <p class="text-xs text-slate-400">Searchable directory and ranked leaderboard with date filters and performance tracking.</p>
         </div>
 
         <div class="flex items-center gap-2 text-xs font-mono">
