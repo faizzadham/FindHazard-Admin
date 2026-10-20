@@ -17,7 +17,7 @@
                     Warehouse Hazard Analytics by Area
                 </h3>
                 <p class="text-xs text-slate-400 mt-0.5">
-                    Aggregated hazard detection statistics, blindspot identification, and zone vigilance across all registered VR trainees.
+                    Overall hazard detection stats, missed hazards, and zone monitoring for all VR trainees.
                 </p>
             </div>
 

@@ -46,7 +46,11 @@
         </div>
 
         <a href="{{ route('login') }}" class="glass-card hover:bg-rose-950/40 text-rose-300 border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer">
+<<<<<<< HEAD
             Exit
+=======
+            Log Out
+>>>>>>> 64ab2e978059a7e1af7ee7f28c396a84bb24d8e6
         </a>
     </div>
 </header>

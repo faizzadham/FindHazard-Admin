@@ -146,7 +146,7 @@
                     </p>
                     <div class="space-y-1 text-xs font-mono text-slate-400 border-t border-white/5 pt-2">
                         <div>&bull; Certificate: <strong class="text-emerald-300 font-bold">Qualified ★</strong></div>
-                        <div>&bull; Deployment: <span class="text-slate-200">Autonomous Airside Duty</span></div>
+            
                     </div>
                 </div>
 
@@ -174,7 +174,6 @@
                     </p>
                     <div class="space-y-1 text-xs font-mono text-slate-400 border-t border-white/5 pt-2">
                         <div>&bull; Certificate: <strong class="text-sky-300 font-bold">Qualified ✓</strong></div>
-                        <div>&bull; Deployment: <span class="text-slate-200">Standard Warehouse Duty</span></div>
                     </div>
                 </div>
 
@@ -202,7 +201,6 @@
                     </p>
                     <div class="space-y-1 text-xs font-mono text-slate-400 border-t border-white/5 pt-2">
                         <div>&bull; Certificate: <strong class="text-amber-400 font-bold">Ineligible (&lt;80%)</strong></div>
-                        <div>&bull; Deployment: <span class="text-slate-200">Refresher Drill Required</span></div>
                     </div>
                 </div>
 
@@ -230,7 +228,6 @@
                     </p>
                     <div class="space-y-1 text-xs font-mono text-slate-400 border-t border-white/5 pt-2">
                         <div>&bull; Certificate: <strong class="text-rose-400 font-bold">Locked ✕</strong></div>
-                        <div>&bull; Deployment: <span class="text-slate-200">Restricted from Airside</span></div>
                     </div>
                 </div>
 
@@ -283,7 +280,7 @@
                 <div class="grid grid-cols-2 gap-3 text-xs font-mono pt-2">
                     <div class="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
                         <span class="text-emerald-400 font-bold block">✓ Score &ge; 80.0%</span>
-                        <span class="text-slate-300 text-[11px]">Instant certificate generation, printable credential badge, airside deployment eligible.</span>
+                        <span class="text-slate-300 text-[11px]">Instant certificate generation, printable credential badge. </span>
                     </div>
                     <div class="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20">
                         <span class="text-rose-400 font-bold block">✕ Score &lt; 80.0%</span>
