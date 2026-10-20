@@ -671,15 +671,36 @@ function changeWarehouseZone(z) {
 }
 
 /**
- * Toggle browser fullscreen mode.
+ * Toggle entire web page fullscreen mode with persistence.
  */
-function toggleDisplay2Fullscreen() {
+function togglePageFullscreen() {
     if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
+        document.documentElement.requestFullscreen()
+            .then(() => {
+                sessionStorage.setItem('dashboard_fullscreen_active', 'true');
+            })
+            .catch((err) => {
+                console.warn('Fullscreen request failed:', err);
+            });
     } else {
-        document.exitFullscreen().catch(() => {});
+        sessionStorage.removeItem('dashboard_fullscreen_active');
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch((err) => {
+                console.warn('Exit fullscreen failed:', err);
+            });
+        }
     }
 }
+
+/**
+ * Toggle browser fullscreen mode (alias).
+ */
+function toggleDisplay2Fullscreen() {
+    togglePageFullscreen();
+}
+
+window.togglePageFullscreen = togglePageFullscreen;
+window.toggleDisplay2Fullscreen = toggleDisplay2Fullscreen;
 
 // ============================================================================
 // SECTION 6: PDF CERTIFICATE EXPORT GENERATOR
@@ -819,4 +840,191 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('traineeTableBody')) {
         applyDirectoryFilters();
     }
+});
+
+// Helper function to update fullscreen header button UI state
+function syncFullscreenUiState() {
+    const isFs = Boolean(document.fullscreenElement);
+    const textEl = document.getElementById('headerFullscreenText');
+    const expandIcon = document.getElementById('headerFullscreenIconExpand');
+    const exitIcon = document.getElementById('headerFullscreenIconExit');
+    const btn = document.getElementById('btnHeaderFullscreen');
+
+    if (textEl) {
+        textEl.innerText = isFs ? 'Exit Full' : 'Fullscreen';
+    }
+    if (expandIcon) {
+        expandIcon.classList.toggle('hidden', isFs);
+    }
+    if (exitIcon) {
+        exitIcon.classList.toggle('hidden', !isFs);
+    }
+    if (btn) {
+        btn.setAttribute('title', isFs ? 'Exit Fullscreen (Esc)' : 'Toggle Fullscreen Mode');
+        if (isFs) {
+            btn.classList.add('border-amber-500/40', 'bg-amber-500/10', 'text-amber-300');
+        } else {
+            btn.classList.remove('border-amber-500/40', 'bg-amber-500/10', 'text-amber-300');
+        }
+    }
+}
+
+// Synchronize header fullscreen button with browser fullscreen status
+document.addEventListener('fullscreenchange', () => {
+    const isFs = Boolean(document.fullscreenElement);
+    if (isFs) {
+        sessionStorage.setItem('dashboard_fullscreen_active', 'true');
+    } else {
+        sessionStorage.removeItem('dashboard_fullscreen_active');
+    }
+    syncFullscreenUiState();
+});
+
+// ============================================================================
+// SECTION 9: SEAMLESS IN-PAGE NAVIGATION (PRESERVES FULLSCREEN ACROSS SECTIONS)
+// ============================================================================
+
+let isPjaxNavigating = false;
+
+/**
+ * Navigate to an internal page dynamically without full reload,
+ * preserving HTML5 Fullscreen state and active stream connections.
+ */
+async function navigateToPage(url, pushToHistory = true) {
+    if (isPjaxNavigating) return;
+
+    const targetUrl = new URL(url, window.location.origin);
+    const currentUrl = new URL(window.location.href);
+
+    // If already on the same URL path & query, skip
+    if (targetUrl.pathname === currentUrl.pathname && targetUrl.search === currentUrl.search) {
+        return;
+    }
+
+    isPjaxNavigating = true;
+    const contentContainer = document.getElementById('dashboard-main-content');
+
+    if (contentContainer) {
+        contentContainer.style.opacity = '0.35';
+        contentContainer.style.pointerEvents = 'none';
+    }
+
+    try {
+        const response = await fetch(targetUrl.href, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // 1. Swap main content
+        const newContent = doc.getElementById('dashboard-main-content');
+        if (newContent && contentContainer) {
+            contentContainer.innerHTML = newContent.innerHTML;
+
+            // Execute scripts inside the new content (like window.dbTrainees = ...)
+            const scripts = contentContainer.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }
+
+        // 2. Update Document Title
+        if (doc.title) {
+            document.title = doc.title;
+        }
+
+        // 3. Update Header Nav Active Classes
+        const newTopNav = doc.getElementById('topbar-nav');
+        const currentTopNav = document.getElementById('topbar-nav');
+        if (newTopNav && currentTopNav) {
+            currentTopNav.innerHTML = newTopNav.innerHTML;
+        }
+
+        // 4. Update Footer Nav Active Classes
+        const newFooterNav = doc.getElementById('footer-nav');
+        const currentFooterNav = document.getElementById('footer-nav');
+        if (newFooterNav && currentFooterNav) {
+            currentFooterNav.innerHTML = newFooterNav.innerHTML;
+        }
+
+        // 5. Update History
+        if (pushToHistory) {
+            window.history.pushState({ url: targetUrl.href }, '', targetUrl.href);
+        }
+
+        // 6. Run Page Initializers for the new section
+        initDashboardMetricCounters();
+        initSvgScoreRings();
+
+        if (document.getElementById('traineeTableBody')) {
+            applyDirectoryFilters();
+        }
+
+        if (document.getElementById('incomingRunsContainer')) {
+            renderIncomingRunsLog();
+        }
+
+        // Smooth scroll to top of view
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Ensure Fullscreen Button State stays synchronized
+        syncFullscreenUiState();
+
+    } catch (err) {
+        console.warn('[PJAX] Navigation fetch failed, falling back to full navigation:', err);
+        window.location.href = targetUrl.href;
+    } finally {
+        if (contentContainer) {
+            contentContainer.style.opacity = '1';
+            contentContainer.style.pointerEvents = '';
+        }
+        isPjaxNavigating = false;
+    }
+}
+
+// Global click interceptor for seamless fullscreen-preserving navigation
+document.addEventListener('click', (e) => {
+    const anchor = e.target.closest('a');
+    if (!anchor) return;
+
+    // Ignore special modifier clicks
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+    // Ignore external or new-tab targets
+    if (anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+    if (anchor.getAttribute('rel')?.includes('external')) return;
+
+    // Ignore explicit exclusions or login / logout
+    if (anchor.hasAttribute('data-no-pjax') || anchor.getAttribute('href')?.includes('/login')) return;
+
+    const href = anchor.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+    // Must be same origin
+    const url = new URL(href, window.location.href);
+    if (url.origin !== window.location.origin) return;
+
+    // Check if it's an internal app route
+    const validPaths = ['/overview', '/dashboard', '/monitor', '/directory', '/analytics', '/guide', '/trainee'];
+    const isAppRoute = validPaths.some(p => url.pathname.includes(p));
+    if (!isAppRoute) return;
+
+    e.preventDefault();
+    navigateToPage(url.href, true);
+});
+
+// Handle browser Back / Forward buttons without exiting fullscreen
+window.addEventListener('popstate', () => {
+    navigateToPage(window.location.href, false);
 });

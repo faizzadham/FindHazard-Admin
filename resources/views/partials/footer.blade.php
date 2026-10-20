@@ -7,7 +7,7 @@
         </div>
     </div>
     <div class="md:col-span-6 glass-sheet p-5 rounded-[2rem]">
-        <div class="grid grid-cols-5 gap-2 text-center text-[10px] font-bold">
+        <div id="footer-nav" class="grid grid-cols-5 gap-2 text-center text-[10px] font-bold">
             <a href="{{ route('dashboard.overview') }}" class="glass-card p-2 rounded-xl {{ request()->routeIs('dashboard.overview') ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' : 'text-slate-200 hover:text-white' }} block transition">Overview</a>
             <a href="{{ route('dashboard.monitor') }}" class="glass-card p-2 rounded-xl {{ request()->routeIs('dashboard.monitor') ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' : 'text-slate-200 hover:text-white' }} block transition">VR Monitor</a>
             <a href="{{ route('dashboard.directory') }}" class="glass-card p-2 rounded-xl {{ request()->routeIs('dashboard.directory') ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' : 'text-slate-200 hover:text-white' }} block transition">Directory</a>

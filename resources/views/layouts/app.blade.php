@@ -35,7 +35,9 @@
             @include('partials.header')
 
             <!-- Page Content -->
-            @yield('content')
+            <div id="dashboard-main-content" class="transition-opacity duration-150">
+                @yield('content')
+            </div>
 
         </section>
 

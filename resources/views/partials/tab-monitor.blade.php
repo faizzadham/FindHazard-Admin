@@ -45,9 +45,9 @@
                 <span>✕</span><span>Disconnect</span>
             </button>
 
-            <button onclick="toggleMonitorFullscreen()" 
+            <button id="btnMonitorFullscreen" onclick="toggleMonitorFullscreen(event)" 
                 class="glass-card px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition font-mono flex items-center gap-1.5 cursor-pointer" title="Toggle Fullscreen">
-                <span>⛶</span><span>Fullscreen</span>
+                <span id="monitorFsIcon">⛶</span><span id="monitorFsText">Fullscreen</span>
             </button>
         </div>
     </div>
@@ -165,7 +165,7 @@
                             </div>
 
                             <!-- Exit Fullscreen Button -->
-                            <button onclick="toggleMonitorFullscreen()" class="glass-sheet bg-neutral-950/85 hover:bg-neutral-900 backdrop-blur-xl border border-white/15 px-3 py-3 rounded-2xl text-slate-300 hover:text-white transition shadow-2xl cursor-pointer flex items-center gap-1.5 font-mono text-xs font-bold" title="Exit Fullscreen (Esc)">
+                            <button onclick="toggleMonitorFullscreen(event)" class="glass-sheet bg-neutral-950/85 hover:bg-neutral-900 backdrop-blur-xl border border-white/15 px-3 py-3 rounded-2xl text-slate-300 hover:text-white transition shadow-2xl cursor-pointer flex items-center gap-1.5 font-mono text-xs font-bold" title="Exit Fullscreen (Esc)">
                                 <span class="text-sm">✕</span>
                                 <span class="hidden sm:inline">Exit</span>
                             </button>
@@ -384,8 +384,11 @@
         const container = document.getElementById('vrMonitorScreenContainer');
         if (!video || !container) return;
 
-        // If in native Fullscreen mode, fill display 100%
-        if (document.fullscreenElement) {
+        const fsElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        const isMonitorFs = (fsElement === container);
+
+        // If the VR Monitor container itself is in Fullscreen mode, fill display 100%
+        if (isMonitorFs) {
             container.style.width = '100vw';
             container.style.maxWidth = '100vw';
             container.style.height = '100vh';
@@ -553,17 +556,20 @@
         }
     }
 
-    // Fullscreen Viewport Toggle
-    function toggleMonitorFullscreen() {
+    // Fullscreen Viewport Toggle for the VR Monitor Cast
+    function toggleMonitorFullscreen(e) {
+        if (e && e.stopPropagation) {
+            e.stopPropagation();
+        }
+
         const container = document.getElementById('vrMonitorScreenContainer');
-        const hud = document.getElementById('vrFullscreenHudOverlay');
         if (!container) return;
-        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-        if (!isFs) {
-            if (hud) {
-                hud.style.setProperty('display', 'flex', 'important');
-                hud.classList.remove('hidden');
-            }
+
+        const fsElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        const isMonitorFs = (fsElement === container);
+
+        if (!isMonitorFs) {
+            // Request fullscreen on the VR Monitor container specifically
             if (container.requestFullscreen) {
                 container.requestFullscreen().catch(() => {});
             } else if (container.webkitRequestFullscreen) {
@@ -574,10 +580,7 @@
                 container.msRequestFullscreen();
             }
         } else {
-            if (hud) {
-                hud.style.setProperty('display', 'none', 'important');
-                hud.classList.add('hidden');
-            }
+            // Exit container fullscreen
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch(() => {});
             } else if (document.webkitExitFullscreen) {
@@ -843,7 +846,7 @@
     }
 
     // Set up auto-polling interval & disable picture-in-picture
-    document.addEventListener('DOMContentLoaded', () => {
+    function initMonitorPage() {
         const video = document.getElementById('vrLiveCastVideo');
         if (video) {
             video.disablePictureInPicture = true;
@@ -854,7 +857,9 @@
             });
         }
 
-        if (autoSyncInterval) clearInterval(autoSyncInterval);
+        if (typeof autoSyncInterval !== 'undefined' && autoSyncInterval) {
+            clearInterval(autoSyncInterval);
+        }
         autoSyncInterval = setInterval(() => {
             const chk = document.getElementById('chkAutoSync');
             if (chk && chk.checked) {
@@ -871,7 +876,13 @@
                 }
             }, 800);
         }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMonitorPage);
+    } else {
+        initMonitorPage();
+    }
 
     // Window resize handler: keeps monitor snug if browser window dimensions change
     window.addEventListener('resize', () => {
@@ -885,9 +896,18 @@
         const container = document.getElementById('vrMonitorScreenContainer');
         const video = document.getElementById('vrLiveCastVideo');
         const hudOverlay = document.getElementById('vrFullscreenHudOverlay');
-        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        const fsText = document.getElementById('monitorFsText');
+        const fsIcon = document.getElementById('monitorFsIcon');
+        const fsBtn = document.getElementById('btnMonitorFullscreen');
 
-        if (isFs) {
+        const fsElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+
+        // CRITICAL: Strictly check if the VR Monitor Viewport itself is the fullscreen element
+        // (Do NOT trigger when the webpage/document is in fullscreen mode!)
+        const isMonitorFs = (fsElement === container);
+
+        if (isMonitorFs) {
+            // Monitor Viewport is Fullscreen: Show HUD overlay and maximize container
             if (hudOverlay) {
                 hudOverlay.style.setProperty('display', 'flex', 'important');
                 hudOverlay.classList.remove('hidden');
@@ -902,7 +922,13 @@
                 video.classList.remove('object-cover');
                 video.classList.add('object-contain');
             }
+            if (fsText) fsText.innerText = 'Exit Fullscreen';
+            if (fsIcon) fsIcon.innerText = '✕';
+            if (fsBtn) {
+                fsBtn.classList.add('border-amber-500/40', 'bg-amber-500/10', 'text-amber-300');
+            }
         } else {
+            // Monitor Viewport is NOT fullscreen: Hide HUD overlay and restore clean grid layout
             if (hudOverlay) {
                 hudOverlay.style.setProperty('display', 'none', 'important');
                 hudOverlay.classList.add('hidden');
@@ -911,12 +937,38 @@
                 video.classList.remove('object-contain');
                 video.classList.add('object-cover');
             }
+            if (fsText) fsText.innerText = 'Fullscreen';
+            if (fsIcon) fsIcon.innerText = '⛶';
+            if (fsBtn) {
+                fsBtn.classList.remove('border-amber-500/40', 'bg-amber-500/10', 'text-amber-300');
+            }
+
+            // Always reset container to normal column proportions
+            if (container) {
+                container.style.maxWidth = '';
+                container.style.width = '';
+                container.style.height = '';
+                container.style.aspectRatio = '';
+            }
+
             if (vrCastMediaStream) {
                 fitMonitorToStream();
             } else {
                 resetMonitorContainerFit();
             }
         }
+    }
+
+    // Prevent accidental fullscreen exit when clicking inside VR video or container
+    const monitorBox = document.getElementById('vrMonitorScreenContainer');
+    if (monitorBox) {
+        monitorBox.addEventListener('click', (e) => {
+            // Allow clicking explicit action buttons (connect, exit, checklist, etc.)
+            if (e.target.closest('button') || e.target.closest('a')) {
+                return;
+            }
+            e.stopPropagation();
+        });
     }
 
     ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
