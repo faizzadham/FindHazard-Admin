@@ -1,59 +1,128 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ⚠️ FindHazard VR — Supervisor Glass Dashboard
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Real-time telemetry evaluation & command center for VR aviation cargo hazard drills.**  
+> Built with **Laravel 11**, **Tailwind CSS**, and **JetBrains Mono**. Ingests spatial inspection results from Meta Quest 3 VR headsets and Unity XR Interaction Simulator.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🧭 System Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```mermaid
+flowchart LR
+    A["🥽 Meta Quest 3 VR / XR Simulator"] -->|"POST /api/trainee-results"| B["⚡ Laravel REST API"]
+    A -->|"POST /api/active-trainee"| B
+    B --> C[("🗄️ MariaDB / MySQL")]
+    B --> D["🧠 Cache (active_vr_trainee)"]
+    D --> E["🖥️ Live VR Session Monitor"]
+    C --> F["📊 Directory Leaderboard (10-Item Pages)"]
+    C --> G["📈 6-Zone Blindspot Analytics"]
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🗂️ Clean Codebase Structure & Key Files
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Here is the quick guide to where everything is located and what each file does:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| File / Directory | Purpose & Responsibility |
+|---|---|
+| [`app/Http/Controllers/TraineeResultController.php`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/app/Http/Controllers/TraineeResultController.php) | **HTTP Controller**: Handles VR REST API requests and renders Blade dashboard views. Kept lean and easy to read. |
+| [`app/Services/HazardEvaluationService.php`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/app/Services/HazardEvaluationService.php) | **Business Logic Service**: Master configuration of the 6 Warehouse Zones & 13 Hazards, detection analytics, trainee zone breakdowns, and automated supervisor statements. |
+| [`app/Models/TraineeResult.php`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/app/Models/TraineeResult.php) | **Eloquent Model**: Database representation with convenient accessors (`formatted_time`, `formatted_score`, `wrong_clicks_penalty`) and scopes (`leaderboard()`, `certified()`). |
+| [`routes/api.php`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/routes/api.php) | **VR REST API Endpoints**: Ingests drill results and active trainee sync from Unity VR. |
+| [`routes/web.php`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/routes/web.php) | **Web Navigation Routes**: Defines multi-page dashboard views (`/overview`, `/monitor`, `/directory`, `/analytics`, `/guide`, `/trainee/{id}`). |
+| [`resources/views/partials/`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/resources/views/partials/) | **Modular Blade Partials**: `tab-overview.blade.php`, `tab-monitor.blade.php`, `tab-directory.blade.php`, `tab-analytics.blade.php`, `header.blade.php`, `footer.blade.php`. |
+| [`public/js/dashboard.js`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/public/js/dashboard.js) | **Client JavaScript Engine**: 10-item directory pagination, search/filtering, WebRTC MQDH video cast, and dynamic KPI count-up animations. |
+| [`public/css/dashboard.css`](file:///c:/xampp/htdocs/laravel/FindHazardAdmin/public/css/dashboard.css) | **Visual Stylesheet**: Dark glassmorphism, ambient lighting orbs, 3D holographic isometric cube, and scanning gridlines. |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📡 VR Headset / Unity API Integration
 
-### Premium Partners
+The Unity application (`findhazardvr`) communicates with this dashboard using `LaravelApiBridge.cs`:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 1. Ingest Completed Session Telemetry
+- **Endpoint**: `POST /api/trainee-results`
+- **Headers**: `Content-Type: application/json`
+- **Payload Example**:
+  ```json
+  {
+    "username": "Hafiz_Pilot",
+    "hazards_found": 11,
+    "hazards_missed": 2,
+    "wrong_clicks": 1,
+    "completion_time": 84.5,
+    "found_hazards": ["Exposed Power Cable", "Fluid & Oil Leak Slip Hazard"],
+    "missed_hazards": ["Overloaded Forklift", "Damaged ULD"]
+  }
+  ```
+- **Response**: `201 Created` with computed score, rating, and certification status.
 
-## Contributing
+### 2. Live Active Trainee Synchronization
+- **Set Active Trainee**: `POST /api/active-trainee` (Called when trainee enters drill)
+- **Clear Active Trainee**: `POST /api/active-trainee/clear` (Called when drill ends)
+- **Poll Monitor Status**: `GET /api/live-monitor/status` (Polled every 2s by the web monitor)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 📐 Scoring & Evaluation Methodology
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Metric | Rule / Calculation |
+|---|---|
+| **Total Industrial Hazards** | Exactly **13 hazards** distributed across 6 warehouse zones. |
+| **Base Detection Score** | `(hazards_found / 13) * 100` (~7.69% per hazard). |
+| **Trigger Discipline Penalty** | `-5.0%` deduction per misclicked safe object / distractor. |
+| **Final Clamped Score** | `max(0.0, min(100.0, base_score - (wrong_clicks * 5.0)))`. |
+| **Passing Qualification** | **$\ge 80.0\%$** required for official VR Safety Certification. |
+| **Performance Tiers** | **Locked In** ($\ge 90\%$), **Great** ($\ge 80\%$), **Valid Effort** ($\ge 60\%$), **Needs Review** ($< 60\%$). |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🏢 The 6 Warehouse Zones & 13 Safety Hazards
 
-## License
+1. **✈️ Aircraft Parts Storage Area**
+   - Hazard #1: Fluid & Oil Leak Slip Hazard
+   - Hazard #2: Dislodged Aircraft Parts
+2. **📦 Cargo Storage Area**
+   - Hazard #3: Unstable Cargo Stack
+   - Hazard #4: Blocked Emergency Exit
+3. **🚜 Main Cargo Handling Area**
+   - Hazard #5: Overloaded Forklift
+   - Hazard #6: Unsecured Boxes
+4. **📐 ULD Storage Area**
+   - Hazard #7: Improperly Stacked ULD Container
+   - Hazard #8: Damaged ULD
+5. **⚡ Loading/Unloading Area**
+   - Hazard #9: Exposed Power Cable
+   - Hazard #10: Accumulated Packaging Debris
+   - Hazard #11: Crushed Bottom Pallet Base
+6. **🛫 Airside Cargo Area**
+   - Hazard #12: Tarmac Foreign Object Debris (FOD)
+   - Hazard #13: Dislodged Restraint Net on PMC Pallet
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🚀 Running & Testing
+
+### Prerequisites
+- **XAMPP**: Apache (Port 80) and MariaDB/MySQL (Port 3306) running.
+- **PHP 8.2+** with PDO MySQL, OpenSSL, and cURL extensions.
+
+### Local Access URLs
+- **Supervisor Dashboard**: [http://127.0.0.1/laravel/FindHazardAdmin/public/](http://127.0.0.1/laravel/FindHazardAdmin/public/)
+- **API Health Check**: [http://127.0.0.1/laravel/FindHazardAdmin/public/api/live-monitor/status](http://127.0.0.1/laravel/FindHazardAdmin/public/api/live-monitor/status)
+
+### Helpful Artisan Commands
+```bash
+# Check registered routes
+php artisan route:list
+
+# Clear application cache
+php artisan cache:clear
+
+# Clear compiled view cache
+php artisan view:clear
+
+# Run database migrations
+php artisan migrate
+```

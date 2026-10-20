@@ -166,7 +166,7 @@ body {
     background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.35), rgba(253, 224, 71, 0.6), rgba(245, 158, 11, 0.35), transparent);
     box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
     opacity: 0.7;
-    pointer-events-none;
+    pointer-events: none;
     z-index: 1;
     animation: scanlineSweep 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }

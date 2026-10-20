@@ -1,7 +1,24 @@
 /**
- * FindHazard VR — Supervisor Glass Dashboard Client Logic
+ * ============================================================================
+ * FindHazard VR — Supervisor Glass Dashboard Client Engine
+ * ============================================================================
+ * 
+ * Modular JavaScript engine managing:
+ * - SECTION 1: Global State & Database Hydration
+ * - SECTION 2: UI Toasts & Feedback
+ * - SECTION 3: Directory Search, Filtering & 10-Item Pagination
+ * - SECTION 4: Trainee Dossier Inspection & Checkpoint Highlights
+ * - SECTION 5: Live VR Telemetry Feed & Session Timers
+ * - SECTION 6: PDF Certificate Export Generator
+ * - SECTION 7: Dynamic KPI Metric Counters & SVG Gauge Rings
+ * - SECTION 8: DOM Lifecycle Initialization
  */
 
+// ============================================================================
+// SECTION 1: GLOBAL STATE & DATABASE HYDRATION
+// ============================================================================
+
+/** Fallback trainees used if the database is initially empty or offline */
 const defaultTrainees = [
     { id: 'amir_inspector', score: 92.3, found: 12, missed: 1, wrong_clicks: 0, is_certified: true, time: '1m 12s', rating: 'Locked In', date: '10 Oct 2026, 03:00 PM', notes: '', missedIndices: [] },
     { id: 'hafiz_pilot', score: 79.6, found: 11, missed: 2, wrong_clicks: 1, is_certified: false, time: '1m 24s', rating: 'Valid Effort', date: '10 Oct 2026, 03:00 PM', notes: '', missedIndices: [] },
@@ -12,6 +29,10 @@ const defaultTrainees = [
 
 let trainees = [...defaultTrainees];
 
+/**
+ * Hydrates client-side trainee state from server-injected window.dbTrainees.
+ * Formats timestamps, completion times, and populates unique date dropdown options.
+ */
 function syncTraineesFromDB() {
     if (window.dbTrainees && Array.isArray(window.dbTrainees) && window.dbTrainees.length > 0) {
         trainees = window.dbTrainees.map(r => {
@@ -61,6 +82,7 @@ function syncTraineesFromDB() {
     }
 }
 
+/** Checkpoint lookup mapping for the 13 warehouse hazards */
 const scenarioCheckpoints = [
     { id: 1, name: 'Tarmac Foreign Object Debris (FOD)', cat: 'Airside Cargo Area', time: '00:03.4' },
     { id: 2, name: 'Dislodged Restraint Net on PMC Pallet', cat: 'Airside Cargo Area', time: '00:06.1' },
@@ -89,6 +111,16 @@ const clickEventFeed = [
     { time: '00:15.3', label: 'Safe Tool Rack', type: 'misclick', points: '0 PTS' }
 ];
 
+// ============================================================================
+// SECTION 2: UI TOASTS & FEEDBACK
+// ============================================================================
+
+/**
+ * Display a temporary floating glass toast notification in the UI.
+ * @param {string} title - Heading
+ * @param {string} body - Subtext message
+ * @param {string} icon - Emoji or symbol icon
+ */
 function showToast(title, body, icon = '⚡') {
     const toast = document.getElementById('toastMessage');
     if (!toast) return;
@@ -102,6 +134,10 @@ function showToast(title, body, icon = '⚡') {
     setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-10'), 2500);
 }
 
+/**
+ * Handle global quick-search query input and forward to directory filter.
+ * @param {string} val - Query text
+ */
 function handleGlobalSearch(val) {
     const dirInput = document.getElementById('directorySearchInput');
     if (dirInput) {
@@ -110,14 +146,54 @@ function handleGlobalSearch(val) {
     }
 }
 
-function applyDirectoryFilters() {
+// ============================================================================
+// SECTION 3: DIRECTORY SEARCH, FILTERING & 10-ITEM PAGINATION
+// ============================================================================
+
+let directoryCurrentPage = 1;
+const directoryPageSize = 10;
+let lastFilteredDirectoryTrainees = [];
+
+/**
+ * Advance or retreat directory pagination by delta (+1 or -1).
+ * @param {number} delta
+ */
+function changeDirectoryPage(delta) {
+    goToDirectoryPage(directoryCurrentPage + delta);
+}
+
+/**
+ * Navigate directory table directly to a specified page index.
+ * @param {number} pageNum
+ */
+function goToDirectoryPage(pageNum) {
+    const totalPages = Math.max(1, Math.ceil(lastFilteredDirectoryTrainees.length / directoryPageSize));
+    if (pageNum < 1) pageNum = 1;
+    if (pageNum > totalPages) pageNum = totalPages;
+    directoryCurrentPage = pageNum;
+    renderDirectoryTablePage();
+
+    const tableHeader = document.getElementById('view-directory');
+    if (tableHeader) {
+        tableHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+/**
+ * Filter and sort trainees based on active dropdown controls, then render page 1.
+ * @param {boolean} resetPage - Whether to jump back to page 1 on filter change
+ */
+function applyDirectoryFilters(resetPage = true) {
+    if (resetPage) {
+        directoryCurrentPage = 1;
+    }
     syncTraineesFromDB();
     const searchVal = document.getElementById('directorySearchInput')?.value.toLowerCase().trim() || '';
     const dateVal = document.getElementById('directoryDateFilter')?.value || 'all';
     const sortVal = document.getElementById('directorySortFilter')?.value || 'top_to_bottom';
     const certVal = document.getElementById('directoryCertFilter')?.value || 'all';
 
-    // 1. Filter
+    // 1. Filter trainees matching search, date, and certification status
     let filtered = trainees.filter(t => {
         const matchesSearch = !searchVal || t.id.toLowerCase().includes(searchVal);
         const matchesDate = (dateVal === 'all') || (t.dateShort === dateVal) || (t.date && t.date.includes(dateVal));
@@ -128,7 +204,7 @@ function applyDirectoryFilters() {
         return matchesSearch && matchesDate && matchesCert;
     });
 
-    // 2. Sort / Leaderboard ranking
+    // 2. Sort trainees according to selected leaderboard metric
     filtered.sort((a, b) => {
         const scoreA = typeof a.score === 'number' ? a.score : parseFloat(a.score) || 0;
         const scoreB = typeof b.score === 'number' ? b.score : parseFloat(b.score) || 0;
@@ -140,11 +216,10 @@ function applyDirectoryFilters() {
         const foundB = typeof b.found === 'number' ? b.found : parseInt(b.found) || 0;
 
         if (sortVal === 'top_to_bottom') {
-            // Leaderboard top to bottom: highest score first, then fastest completion time
+            // Official Leaderboard: highest score first, tie-breaker: fastest time
             if (scoreB !== scoreA) return scoreB - scoreA;
             return timeA - timeB;
         } else if (sortVal === 'bottom_to_top') {
-            // Lowest score first
             if (scoreA !== scoreB) return scoreA - scoreB;
             return timeB - timeA;
         } else if (sortVal === 'fastest_time') {
@@ -160,24 +235,49 @@ function applyDirectoryFilters() {
         return scoreB - scoreA;
     });
 
+    lastFilteredDirectoryTrainees = filtered;
+
     const matchEl = document.getElementById('directoryMatchCount');
     if (matchEl) matchEl.innerText = filtered.length;
 
+    renderDirectoryTablePage();
+}
+
+/**
+ * Render the current slice of 10 items for the directory leaderboard table.
+ */
+function renderDirectoryTablePage() {
     const tbody = document.getElementById('traineeTableBody');
     if (!tbody) return;
 
-    if (filtered.length === 0) {
+    const totalItems = lastFilteredDirectoryTrainees.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / directoryPageSize));
+
+    if (directoryCurrentPage > totalPages) directoryCurrentPage = totalPages;
+    if (directoryCurrentPage < 1) directoryCurrentPage = 1;
+
+    if (totalItems === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="p-8 text-center text-slate-500">
+                <td colspan="9" class="p-8 text-center text-slate-500 font-mono">
                     No matching trainees found for the selected filters.
                 </td>
             </tr>
         `;
+        renderDirectoryPagination(0, 0, 0, 1);
         return;
     }
 
-    tbody.innerHTML = filtered.map((t, idx) => {
+    const startIndex = (directoryCurrentPage - 1) * directoryPageSize;
+    const endIndex = Math.min(startIndex + directoryPageSize, totalItems);
+    const pageItems = lastFilteredDirectoryTrainees.slice(startIndex, endIndex);
+
+    const sortVal = document.getElementById('directorySortFilter')?.value || 'top_to_bottom';
+    const profileBaseUrl = window.traineeBaseUrl || (window.location.pathname.includes('/public') ? window.location.pathname.substring(0, window.location.pathname.indexOf('/public') + 7) + '/trainee/' : '/trainee/');
+
+    tbody.innerHTML = pageItems.map((t, pageIdx) => {
+        // True global leaderboard rank across all pagination pages
+        const globalRank = startIndex + pageIdx;
         const score = typeof t.score === 'number' ? t.score : parseFloat(t.score) || 0;
         const scVal = Math.max(0, Math.min(100, score));
         const scOffset = (100 - scVal).toFixed(1);
@@ -203,21 +303,23 @@ function applyDirectoryFilters() {
                  Retest (&lt;80%)
                </span>`;
 
-        // Leaderboard rank badges
+        // Medals for Top 3 performers in top_to_bottom mode
         let rankBadge = '';
         if (sortVal === 'top_to_bottom') {
-            if (idx === 0) {
+            if (globalRank === 0) {
                 rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-gold text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-amber-400/25" title="Rank 1 - Top Performer">#1</span>`;
-            } else if (idx === 1) {
+            } else if (globalRank === 1) {
                 rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-silver text-slate-100 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-slate-300/25" title="Rank 2">#2</span>`;
-            } else if (idx === 2) {
+            } else if (globalRank === 2) {
                 rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-bronze text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25" title="Rank 3">#3</span>`;
             } else {
-                rankBadge = `<span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#${idx + 1}</span>`;
+                rankBadge = `<span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#${globalRank + 1}</span>`;
             }
         } else {
-            rankBadge = `<span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#${idx + 1}</span>`;
+            rankBadge = `<span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#${globalRank + 1}</span>`;
         }
+
+        const profileLink = `${profileBaseUrl}${t.db_id || t.id}`;
 
         return `
             <tr class="hover:bg-white/[0.03] transition-colors">
@@ -230,7 +332,6 @@ function applyDirectoryFilters() {
                 <!-- Visual Score Ring & Percentage Score -->
                 <td class="p-3.5 whitespace-nowrap">
                     <div class="flex items-center gap-3">
-                        <!-- Visual Score Ring -->
                         <div class="relative w-9 h-9 shrink-0 flex items-center justify-center">
                             <svg class="w-9 h-9 -rotate-90 transform" viewBox="0 0 36 36">
                                 <path
@@ -255,7 +356,6 @@ function applyDirectoryFilters() {
                                 ${scoreInt}
                             </span>
                         </div>
-                        <!-- Percentage Score Text -->
                         <span class="font-extrabold font-['JetBrains_Mono'] text-sm ${scTextClass}">
                             ${scoreFormatted}%
                         </span>
@@ -296,7 +396,7 @@ function applyDirectoryFilters() {
                 </td>
                 <!-- Action / View Profile Button -->
                 <td class="p-3.5 text-center whitespace-nowrap">
-                    <a href="/trainee/${t.db_id || t.id}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-400 text-amber-300 hover:text-neutral-950 font-mono font-bold text-xs border border-amber-500/30 transition shadow-sm hover:shadow-amber-500/20 cursor-pointer" title="View ${t.id}'s Personal Profile & Zone Breakdown">
+                    <a href="${profileLink}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-400 text-amber-300 hover:text-neutral-950 font-mono font-bold text-xs border border-amber-500/30 transition shadow-sm hover:shadow-amber-500/20 cursor-pointer" title="View ${t.id}'s Personal Profile & Zone Breakdown">
                         <span>Profile</span>
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
@@ -306,8 +406,90 @@ function applyDirectoryFilters() {
             </tr>
         `;
     }).join('');
+
+    renderDirectoryPagination(totalItems, startIndex + 1, endIndex, totalPages);
 }
 
+/**
+ * Render pagination controls, active page pills, and button states.
+ */
+function renderDirectoryPagination(totalItems, displayStart, displayEnd, totalPages) {
+    const rangeEl = document.getElementById('directoryPageRange');
+    const totalEl = document.getElementById('directoryTotalCount');
+    const currentEl = document.getElementById('directoryCurrentPageNum');
+    const pagesEl = document.getElementById('directoryTotalPagesNum');
+    const btnPrev = document.getElementById('btnDirectoryPrev');
+    const btnNext = document.getElementById('btnDirectoryNext');
+    const pageNumbersContainer = document.getElementById('directoryPageNumbers');
+
+    if (totalItems === 0) {
+        if (rangeEl) rangeEl.innerText = '0 – 0';
+        if (totalEl) totalEl.innerText = '0';
+        if (currentEl) currentEl.innerText = '1';
+        if (pagesEl) pagesEl.innerText = '1';
+        if (btnPrev) btnPrev.disabled = true;
+        if (btnNext) btnNext.disabled = true;
+        if (pageNumbersContainer) pageNumbersContainer.innerHTML = '';
+        return;
+    }
+
+    if (rangeEl) rangeEl.innerText = `${displayStart} – ${displayEnd}`;
+    if (totalEl) totalEl.innerText = totalItems;
+    if (currentEl) currentEl.innerText = directoryCurrentPage;
+    if (pagesEl) pagesEl.innerText = totalPages;
+
+    if (btnPrev) btnPrev.disabled = directoryCurrentPage <= 1;
+    if (btnNext) btnNext.disabled = directoryCurrentPage >= totalPages;
+
+    if (!pageNumbersContainer) return;
+
+    let html = '';
+    const maxVisibleButtons = 5;
+    let startPage = Math.max(1, directoryCurrentPage - Math.floor(maxVisibleButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+        startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+
+    if (startPage > 1) {
+        html += `<button type="button" onclick="goToDirectoryPage(1)" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">1</button>`;
+        if (startPage > 2) {
+            html += `<span class="px-1 text-slate-500 font-mono text-xs select-none">...</span>`;
+        }
+    }
+
+    for (let p = startPage; p <= endPage; p++) {
+        if (p === directoryCurrentPage) {
+            html += `<button type="button" class="w-8 h-8 rounded-xl border border-amber-500/50 bg-amber-500 text-neutral-950 shadow-md shadow-amber-500/20 font-black font-mono text-xs cursor-default flex items-center justify-center">${p}</button>`;
+        } else {
+            html += `<button type="button" onclick="goToDirectoryPage(${p})" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">${p}</button>`;
+        }
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            html += `<span class="px-1 text-slate-500 font-mono text-xs select-none">...</span>`;
+        }
+        html += `<button type="button" onclick="goToDirectoryPage(${totalPages})" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">${totalPages}</button>`;
+    }
+
+    pageNumbersContainer.innerHTML = html;
+}
+
+// Bind pagination utilities to window for inline onclick handlers
+window.applyDirectoryFilters = applyDirectoryFilters;
+window.changeDirectoryPage = changeDirectoryPage;
+window.goToDirectoryPage = goToDirectoryPage;
+
+// ============================================================================
+// SECTION 4: TRAINEE DOSSIER & PROFILE INSPECTION
+// ============================================================================
+
+/**
+ * Load trainee inspection dossier, calculate checkpoint recognition, and render UI stats.
+ * @param {string} id - Username
+ */
 function loadTraineeDossier(id) {
     syncTraineesFromDB();
     let trainee = trainees.find(t => t.id === id);
@@ -404,6 +586,9 @@ function loadTraineeDossier(id) {
     }
 }
 
+/**
+ * Render the 4 most recent drill sessions in the Overview page sidebar.
+ */
 function renderIncomingRunsLog() {
     syncTraineesFromDB();
     const container = document.getElementById('incomingRunsContainer');
@@ -426,6 +611,13 @@ function renderIncomingRunsLog() {
     `).join('');
 }
 
+// ============================================================================
+// SECTION 5: LIVE VR TELEMETRY & WEBRTC MQDH MONITOR
+// ============================================================================
+
+/**
+ * Start 100ms increment timer for live session duration tracking.
+ */
 function startActiveSessionTimer() {
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
@@ -437,6 +629,9 @@ function startActiveSessionTimer() {
     }, 100);
 }
 
+/**
+ * Render real-time click event feed (Hazard Hits and Distraction Misclicks).
+ */
 function renderClickEventFeed() {
     const list = document.getElementById('clickEventFeedList');
     if (!list) return;
@@ -455,6 +650,9 @@ function renderClickEventFeed() {
     if (misEl) misEl.innerText = misclicksCount;
 }
 
+/**
+ * Clear the live click events log.
+ */
 function clearEventFeed() {
     clickEventFeed.length = 0;
     hazardHitsCount = 0;
@@ -462,12 +660,19 @@ function clearEventFeed() {
     renderClickEventFeed();
 }
 
+/**
+ * Switch warehouse sector camera label in HUD.
+ * @param {string} z - Zone name
+ */
 function changeWarehouseZone(z) {
     const el = document.getElementById('hudWarehouseZoneLabel');
     if (el) el.innerText = z;
     showToast('Zone Switched', z, '📍');
 }
 
+/**
+ * Toggle browser fullscreen mode.
+ */
 function toggleDisplay2Fullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -476,6 +681,13 @@ function toggleDisplay2Fullscreen() {
     }
 }
 
+// ============================================================================
+// SECTION 6: PDF CERTIFICATE EXPORT GENERATOR
+// ============================================================================
+
+/**
+ * Open print-ready formatted VR Safety Certificate in a dedicated browser tab.
+ */
 function exportPdfCertificate() {
     const t = window.traineeRecordData || selectedTrainee;
     const isCert = t.is_certified ?? (t.score >= 80);
@@ -533,10 +745,13 @@ function exportPdfCertificate() {
     w.document.close();
 }
 
-// ==========================================================================
-// FindHazard VR — Dynamic Telemetry Animation & Counter Engine
-// ==========================================================================
+// ============================================================================
+// SECTION 7: DYNAMIC KPI METRIC COUNTERS & SVG GAUGE RINGS
+// ============================================================================
 
+/**
+ * Animate a numeric text element from start to end with an ease-out curve.
+ */
 function animateNumberCounter(el, start, end, duration = 1000, decimals = 0, suffix = '') {
     if (!el) return;
     const startTime = performance.now();
@@ -545,8 +760,7 @@ function animateNumberCounter(el, start, end, duration = 1000, decimals = 0, suf
     function updateCounter(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        // Smooth easeOutCubic curve
-        const ease = 1 - Math.pow(1 - progress, 3);
+        const ease = 1 - Math.pow(1 - progress, 3); // Smooth easeOutCubic curve
         const currentVal = start + (diff * ease);
         el.innerText = (decimals > 0 ? currentVal.toFixed(decimals) : Math.round(currentVal)) + suffix;
 
@@ -559,6 +773,9 @@ function animateNumberCounter(el, start, end, duration = 1000, decimals = 0, suf
     requestAnimationFrame(updateCounter);
 }
 
+/**
+ * Auto-discover and trigger all elements with data-counter="true".
+ */
 function initDashboardMetricCounters() {
     document.querySelectorAll('[data-counter="true"]').forEach(el => {
         const target = parseFloat(el.getAttribute('data-target') || '0');
@@ -569,6 +786,9 @@ function initDashboardMetricCounters() {
     });
 }
 
+/**
+ * Animate circular SVG stroke offsets smoothly on page load.
+ */
 function initSvgScoreRings() {
     document.querySelectorAll('.svg-score-ring').forEach(ring => {
         const targetOffset = ring.getAttribute('data-target-offset');
@@ -581,23 +801,21 @@ function initSvgScoreRings() {
     });
 }
 
-function flashTelemetryHighlight(elOrId) {
-    // Disabled to prevent unwanted repetitive yellow flash boxes
-    return;
-}
+// ============================================================================
+// SECTION 8: DOM LIFECYCLE INITIALIZATION
+// ============================================================================
 
-// Automatic Page Initialization based on current page elements
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Animated KPI Counters & Circular Gauges
     initDashboardMetricCounters();
     initSvgScoreRings();
 
-    // 2. Overview Page
+    // 2. Initialize Overview Page Components
     if (document.getElementById('incomingRunsContainer')) {
         renderIncomingRunsLog();
     }
 
-    // 3. Directory Page
+    // 3. Initialize Directory Page Table & Filters
     if (document.getElementById('traineeTableBody')) {
         applyDirectoryFilters();
     }

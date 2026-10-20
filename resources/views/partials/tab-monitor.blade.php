@@ -235,36 +235,39 @@
                     </span>
                 </div>
 
-                <!-- 4 Telemetry Columns: Current Trainee, Score, Wrong Clicks, Hazard -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-xs">
-                    <!-- Column 1: Current Trainee -->
-                    <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col justify-between">
+                <!-- 4 Telemetry Metrics: Current Trainee (Extended for long names), Score, Wrong Clicks, Hazard -->
+                <div class="grid grid-cols-3 sm:flex sm:items-stretch gap-2 font-mono text-xs">
+                    <!-- Column 1: Current Trainee (Extended container: spans full width on mobile, flex-[1.8] to flex-[2.5] on desktop) -->
+                    @php
+                        $isLongName = $hasActive && strlen($traineeName) > 14;
+                    @endphp
+                    <div id="containerTraineeName" class="col-span-3 {{ $isLongName ? 'sm:flex-[2.5]' : 'sm:flex-[1.8]' }} p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col justify-between min-w-0 overflow-hidden transition-all duration-200">
                         <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Current Trainee</span>
-                        <span id="displayTraineeName" class="font-mono tracking-wide font-black truncate block mt-1.5 {{ $hasActive ? 'text-sm text-white' : 'text-xs text-slate-400 italic' }}" title="{{ $hasActive ? $traineeName : 'No trainee active yet' }}">
+                        <span id="displayTraineeName" class="font-mono tracking-wide font-black truncate block mt-1.5 {{ $hasActive ? ($isLongName ? 'text-xs sm:text-sm text-white' : 'text-sm sm:text-base text-white') : 'text-xs text-slate-400 italic' }}" title="{{ $hasActive ? $traineeName : 'No trainee active yet' }}">
                             {{ $hasActive ? $traineeName : 'No trainee active yet' }}
                         </span>
                     </div>
 
                     <!-- Column 2: Score -->
-                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
+                    <div class="col-span-1 sm:flex-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between min-w-0 overflow-hidden">
                         <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Score</span>
-                        <span id="displayCardScore" class="text-sm font-black text-amber-400 block mt-1.5">
+                        <span id="displayCardScore" class="text-sm font-black text-amber-400 block mt-1.5 truncate">
                             {{ number_format($traineeScore, 1) }}%
                         </span>
                     </div>
 
                     <!-- Column 3: Wrong Clicks -->
-                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
-                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Wrong Clicks</span>
-                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400 block mt-0.5">
+                    <div class="col-span-1 sm:flex-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between min-w-0 overflow-hidden">
+                        <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block whitespace-nowrap">Wrong Clicks</span>
+                        <span id="displayWrongClicks" class="text-sm font-black text-rose-400 block mt-1.5">
                             {{ $hasActive ? (int)($activeTrainee['wrong_clicks'] ?? 0) : 0 }}
                         </span>
                     </div>
 
                     <!-- Column 4: Hazard -->
-                    <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
+                    <div class="col-span-1 sm:flex-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between min-w-0 overflow-hidden">
                         <span class="text-[9.5px] text-slate-400 uppercase tracking-wider block">Hazard</span>
-                        <span class="text-sm font-black text-emerald-400 block mt-1.5">
+                        <span class="text-sm font-black text-emerald-400 block mt-1.5 whitespace-nowrap">
                             <span id="displayCardHazardCount">{{ $hazardsFoundCount }}</span>
                             <span class="text-slate-500 text-xs font-semibold">/ 13</span>
                         </span>
@@ -417,14 +420,54 @@
     async function connectMqdhCast(isAuto = false) {
         if (vrCastMediaStream) return;
         try {
-            // Prompts browser screen/window picker (automatically bypassed with --auto-select-desktop-capture-source)
-            vrCastMediaStream = await navigator.mediaDevices.getDisplayMedia({
+            // Prevent browser from switching focus / popping up the captured MQDH window on Monitor 1
+            let captureController = null;
+            if (typeof CaptureController !== 'undefined') {
+                captureController = new CaptureController();
+                if (typeof captureController.setFocusBehavior === 'function') {
+                    try {
+                        captureController.setFocusBehavior('no-focus-change');
+                    } catch (e) {
+                        // Some browser versions require calling this immediately after getDisplayMedia resolves
+                    }
+                }
+            }
+
+            const captureOptions = {
                 video: {
                     displaySurface: 'window',
                     frameRate: { ideal: 60, max: 90 }
                 },
-                audio: false
-            });
+                audio: false,
+                preferCurrentTab: false,
+                selfBrowserSurface: 'exclude',
+                systemAudio: 'exclude'
+            };
+
+            if (captureController) {
+                captureOptions.controller = captureController;
+            }
+
+            // Prompts browser screen/window picker
+            vrCastMediaStream = await navigator.mediaDevices.getDisplayMedia(captureOptions);
+
+            // Keep focus strictly on dashboard monitor - prevent MQDH window from popping forward
+            if (captureController && typeof captureController.setFocusBehavior === 'function') {
+                try {
+                    const [videoTrack] = vrCastMediaStream.getVideoTracks();
+                    const surface = videoTrack?.getSettings()?.displaySurface;
+                    if (surface === 'window' || surface === 'browser') {
+                        captureController.setFocusBehavior('no-focus-change');
+                    }
+                } catch (e) {
+                    // Ignore if already locked
+                }
+            }
+
+            // Ensure this dashboard window retains focus
+            try {
+                window.focus();
+            } catch (e) {}
 
             const video = document.getElementById('vrLiveCastVideo');
             const standby = document.getElementById('vrCastStandbyScreen');
@@ -587,6 +630,7 @@
 
     // Apply Telemetry to UI Card Metrics and Checklist
     function applyTraineeTelemetry(record) {
+        const containerTrainee = document.getElementById('containerTraineeName');
         const displayName = document.getElementById('displayTraineeName');
         const badgeActive = document.getElementById('badgeActiveStatus');
         const avatar = document.getElementById('displayTraineeAvatar');
@@ -614,9 +658,13 @@
 
         if (!record || !record.username) {
             // State: NO TRAINEE ACTIVE YET
+            if (containerTrainee) {
+                containerTrainee.className = 'col-span-3 sm:flex-[1.8] p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col justify-between min-w-0 overflow-hidden transition-all duration-200';
+            }
             if (displayName) {
                 displayName.innerText = 'No trainee active yet';
-                displayName.className = 'font-mono tracking-wide block mt-0.5 text-xs font-semibold text-slate-400 italic';
+                displayName.title = 'No trainee active yet';
+                displayName.className = 'font-mono tracking-wide block mt-1.5 text-xs font-semibold text-slate-400 italic truncate';
             }
             if (badgeActive) {
                 badgeActive.innerText = 'No Trainee Active';
@@ -680,9 +728,15 @@
         }
 
         // State: ACTIVE TRAINEE PRESENT
+        const username = record.username || 'Anonymous_Worker';
+        const isLongName = username.length > 14;
+        if (containerTrainee) {
+            containerTrainee.className = `col-span-3 ${isLongName ? 'sm:flex-[2.5]' : 'sm:flex-[1.8]'} p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col justify-between min-w-0 overflow-hidden transition-all duration-200`;
+        }
         if (displayName) {
-            displayName.innerText = record.username;
-            displayName.className = 'font-mono tracking-wide block mt-0.5 text-base font-black text-white';
+            displayName.innerText = username;
+            displayName.title = username;
+            displayName.className = `font-mono tracking-wide block mt-1.5 ${isLongName ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} font-black text-white truncate`;
         }
         if (badgeActive) {
             badgeActive.innerText = 'In VR Headset';

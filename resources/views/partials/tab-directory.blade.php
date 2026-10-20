@@ -5,6 +5,7 @@
 @if(isset($records))
     <script>
         window.dbTrainees = @json($records);
+        window.traineeBaseUrl = "{{ url('/trainee') }}/";
     </script>
 @endif
 
@@ -90,7 +91,7 @@
                 </thead>
                 <tbody id="traineeTableBody" class="divide-y divide-white/5 text-slate-300">
                     @if(isset($records))
-                        @forelse($records as $idx => $record)
+                        @forelse($records->take(10) as $idx => $record)
                             <tr class="hover:bg-white/[0.03] transition-colors">
                                 <td class="p-3.5 font-semibold text-white whitespace-nowrap">
                                     <div class="flex items-center gap-2.5">
@@ -222,7 +223,51 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-4 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-400">
+
+        <!-- Directory Pagination Bar -->
+        <div id="directoryPaginationContainer" class="p-4 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white/[0.01]">
+            <!-- Left: Showing X to Y of Z trainees -->
+            <div class="text-xs text-slate-400 font-mono flex items-center gap-2">
+                <span>Showing</span>
+                <span id="directoryPageRange" class="font-bold text-amber-400">1 – {{ min(10, count($records ?? [])) }}</span>
+                <span>of</span>
+                <span id="directoryTotalCount" class="font-bold text-white">{{ count($records ?? []) }}</span>
+                <span>Trainees</span>
+                <span class="text-slate-600">|</span>
+                <span class="text-slate-400">Page <strong id="directoryCurrentPageNum" class="text-white">1</strong> of <strong id="directoryTotalPagesNum" class="text-white">{{ max(1, (int) ceil(count($records ?? []) / 10)) }}</strong></span>
+            </div>
+
+            <!-- Right: Pagination Buttons -->
+            <div id="directoryPaginationButtons" class="flex items-center gap-1.5 font-mono text-xs">
+                <!-- Previous Button -->
+                <button type="button" id="btnDirectoryPrev" onclick="changeDirectoryPage(-1)" disabled
+                    class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer flex items-center gap-1 font-bold">
+                    <span>&larr;</span><span>Prev</span>
+                </button>
+
+                <!-- Numbered Page Buttons container -->
+                <div id="directoryPageNumbers" class="flex items-center gap-1">
+                    @php
+                        $initTotalPages = max(1, (int) ceil(count($records ?? []) / 10));
+                    @endphp
+                    @for($p = 1; $p <= min(5, $initTotalPages); $p++)
+                        @if($p === 1)
+                            <button type="button" class="w-8 h-8 rounded-xl border border-amber-500/50 bg-amber-500 text-neutral-950 shadow-md shadow-amber-500/20 font-black font-mono text-xs cursor-default flex items-center justify-center">1</button>
+                        @else
+                            <button type="button" onclick="goToDirectoryPage({{ $p }})" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">{{ $p }}</button>
+                        @endif
+                    @endfor
+                </div>
+
+                <!-- Next Button -->
+                <button type="button" id="btnDirectoryNext" onclick="changeDirectoryPage(1)" {{ count($records ?? []) <= 10 ? 'disabled' : '' }}
+                    class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer flex items-center gap-1 font-bold">
+                    <span>Next</span><span>&rarr;</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="px-4 py-3 bg-white/[0.02] border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-400">
             <span class="font-mono">🏆 Leaderboard ranked by final inspection score &amp; completion velocity</span>
             <span class="text-xs text-slate-500 font-mono">Total Recorded Sessions: <strong class="text-slate-300">{{ isset($records) ? count($records) : 0 }}</strong></span>
         </div>

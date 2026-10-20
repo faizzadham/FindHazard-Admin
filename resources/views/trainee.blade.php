@@ -69,6 +69,15 @@
                                 ✕ Retest Required (&lt;80%)
                             </span>
                         @endif
+                        @if($record->wrong_clicks > 0)
+                            <span class="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 inline-flex items-center gap-1.5" title="{{ $record->wrong_clicks }} safe distraction object(s) clicked resulting in -{{ $record->wrong_clicks * 5 }}% score penalty">
+                                <span>🎯</span> {{ $record->wrong_clicks }} Safe Object Click(s) (-{{ $record->wrong_clicks * 5 }}%)
+                            </span>
+                        @else
+                            <span class="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1.5" title="Flawless trigger discipline - 0 safe distraction objects clicked">
+                                <span>🎯</span> 0 Safe Object Clicks
+                            </span>
+                        @endif
                     </div>
                     <p class="text-xs text-slate-400 font-mono flex items-center gap-3">
                         <span>📅 {{ $record->created_at->timezone('Asia/Kuala_Lumpur')->format('d M Y, h:i A') }}</span>
@@ -90,8 +99,8 @@
         </div>
     </div>
 
-    <!-- 3. Key Personal Statistics (4-Card Metric Grid) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 3. Key Personal Statistics (5-Card Metric Grid with Dedicated Safe Object Clicks) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Metric 1: Visual Score Ring & Final Score -->
         <div class="glass-sheet p-5 rounded-3xl border-white/5 flex items-center justify-between animate-fade-in-up delay-2 hover:border-amber-500/30 transition-all duration-300">
             <div>
@@ -157,18 +166,40 @@
             </span>
         </div>
 
-        <!-- Metric 4: Duration & Penalty -->
-        <div class="glass-sheet p-5 rounded-3xl border-white/5 animate-fade-in-up delay-5 hover:border-sky-500/30 transition-all duration-300">
-            <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Scan Duration &amp; Clicks</span>
+        <!-- Metric 4: Safe Object Clicks (Misclicks) -->
+        <div class="glass-sheet p-5 rounded-3xl border-white/5 animate-fade-in-up delay-5 hover:border-amber-500/30 transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Safe Object Clicks</span>
+                <span class="text-xs">🎯</span>
+            </div>
+            <div class="text-3xl font-black {{ $record->wrong_clicks > 0 ? 'text-amber-400' : 'text-emerald-400' }} mt-1 font-['JetBrains_Mono']">
+                {{ $record->wrong_clicks }}
+                @if($record->wrong_clicks > 0)
+                    <span class="text-sm font-mono text-rose-400 font-bold">(-{{ $record->wrong_clicks * 5 }}%)</span>
+                @else
+                    <span class="text-sm font-mono text-emerald-400 font-bold">(0%)</span>
+                @endif
+            </div>
+            <span class="text-[11px] mt-1 block font-mono {{ $record->wrong_clicks > 0 ? 'text-amber-300/90' : 'text-emerald-400/80' }}">
+                @if($record->wrong_clicks > 0)
+                    {{ $record->wrong_clicks }} safe distraction click(s)
+                @else
+                    ✓ Clean trigger discipline (0 misclicks)
+                @endif
+            </span>
+        </div>
+
+        <!-- Metric 5: Scan Duration -->
+        <div class="glass-sheet p-5 rounded-3xl border-white/5 animate-fade-in-up delay-6 hover:border-sky-500/30 transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Scan Duration</span>
+                <span class="text-xs">⏱️</span>
+            </div>
             <div class="text-3xl font-black text-sky-400 mt-1 font-['JetBrains_Mono']">
                 {{ floor($record->completion_time / 60) }}m {{ sprintf('%02ds', round(fmod($record->completion_time, 60))) }}
             </div>
-            <span class="text-[11px] mt-1 block font-mono {{ $record->wrong_clicks > 0 ? 'text-amber-400' : 'text-slate-500' }}">
-                @if($record->wrong_clicks > 0)
-                    {{ $record->wrong_clicks }} misclick(s) (-{{ $record->wrong_clicks * 5 }}% penalty)
-                @else
-                    0 false alarms (clean accuracy)
-                @endif
+            <span class="text-[11px] text-slate-400 mt-1 block font-mono">
+                {{ round($record->completion_time / 13, 1) }}s average per hazard
             </span>
         </div>
     </div>
@@ -210,10 +241,15 @@
                 </p>
             </div>
 
-            <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1">
-                <span class="text-[10px] uppercase font-bold text-sky-400 tracking-wider flex items-center gap-1.5">
-                    <span>🎯</span> Trigger Discipline &amp; Time
-                </span>
+            <div class="p-3 rounded-2xl glass-card border-white/5 space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] uppercase font-bold text-sky-400 tracking-wider flex items-center gap-1.5">
+                        <span>🎯</span> Safe Object Misclicks &amp; Discipline
+                    </span>
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md {{ $record->wrong_clicks > 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' }}">
+                        {{ $record->wrong_clicks > 0 ? $record->wrong_clicks . ' Clicks (-' . ($record->wrong_clicks * 5) . '%)' : '0 Clicks (Clean)' }}
+                    </span>
+                </div>
                 <p class="text-xs text-slate-300 font-mono">
                     {{ $statement['wrong_clicks_commentary'] }}
                 </p>
@@ -269,9 +305,11 @@
                 </h3>
                 <p class="text-xs text-slate-400">Detailed spatial hazard recognition telemetry recorded during {{ $record->username }}'s VR inspection drill.</p>
             </div>
-            <span class="text-xs font-mono text-slate-400">
-                Total Identified: <strong class="text-emerald-400">{{ $record->hazards_found }}/13</strong> ({{ round(($record->hazards_found / 13) * 100, 1) }}%)
-            </span>
+            <div class="flex items-center gap-3 text-xs font-mono text-slate-400">
+                <span>Total Identified: <strong class="text-emerald-400">{{ $record->hazards_found }}/13</strong> ({{ round(($record->hazards_found / 13) * 100, 1) }}%)</span>
+                <span>&bull;</span>
+                <span>Safe Object Clicks: <strong class="{{ $record->wrong_clicks > 0 ? 'text-amber-400' : 'text-emerald-400' }}">{{ $record->wrong_clicks }}</strong> ({{ $record->wrong_clicks > 0 ? '-' . ($record->wrong_clicks * 5) . '%' : '0%' }})</span>
+            </div>
         </div>
 
         <!-- 6 Zone Cards Grid -->
@@ -383,7 +421,7 @@
                     <strong class="text-base text-sky-400 font-black">{{ $record->hazards_found }} / 13</strong>
                 </div>
                 <div>
-                    <span class="text-slate-500 block text-[10px]">WRONG CLICKS</span>
+                    <span class="text-slate-500 block text-[10px]">SAFE OBJECT CLICKS</span>
                     <strong class="text-base text-amber-400 font-black">{{ $record->wrong_clicks }}</strong>
                 </div>
                 <div>

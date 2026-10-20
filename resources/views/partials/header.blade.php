@@ -35,11 +35,6 @@
 
     <!-- Topbar Right Controls -->
     <div class="flex items-center gap-2.5 shrink-0 w-full md:w-auto justify-end">
-        <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl glass-card text-xs font-medium text-slate-300">
-            <span class="text-amber-400 text-xs">💬</span>
-            <span class="text-[11px] font-mono">Safety Standard</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        </div>
 
         <div class="glass-card px-3 py-1.5 rounded-xl text-xs text-slate-300 transition font-mono text-[11px] flex items-center gap-1.5">
             <span>📅</span>
@@ -51,7 +46,7 @@
         </div>
 
         <a href="{{ route('login') }}" class="glass-card hover:bg-rose-950/40 text-rose-300 border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer">
-            Lock
+            Exit
         </a>
     </div>
 </header>
