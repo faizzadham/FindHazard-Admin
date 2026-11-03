@@ -545,6 +545,19 @@ html.light-theme .glass-sheet .text-slate-500 {
     font-weight: 500;
 }
 
+/* Topbar Navigation Single-Line Alignment & Anti-Wrap */
+#topbar-nav {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+
+#topbar-nav .nav-item {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+}
+
 /* Topbar Navigation in Light Mode */
 html.light-theme #topbar-nav {
     background: #f1f5f9;
