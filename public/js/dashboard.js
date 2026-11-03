@@ -406,14 +406,6 @@ function renderDirectoryTablePage() {
             </tr>
         `;
     }).join('');
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                </td>
-            </tr>
-        `;
-    }).join('');
 
     renderDirectoryPagination(totalItems, startIndex + 1, endIndex, totalPages);
 }
@@ -661,23 +653,43 @@ function changeWarehouseZone(z) {
 }
 
 /**
- * Toggle entire web page fullscreen mode with persistence.
+ * Toggle entire web page fullscreen mode with cross-browser support and persistence.
  */
 function togglePageFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen()
-            .then(() => {
+    const doc = document;
+    const isFs = Boolean(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+
+    if (!isFs) {
+        const root = doc.documentElement;
+        const requestFn = root.requestFullscreen || root.webkitRequestFullscreen || root.mozRequestFullScreen || root.msRequestFullscreen;
+        if (requestFn) {
+            const promise = requestFn.call(root);
+            if (promise && typeof promise.then === 'function') {
+                promise.then(() => {
+                    sessionStorage.setItem('dashboard_fullscreen_active', 'true');
+                    syncFullscreenUiState();
+                }).catch((err) => {
+                    console.warn('Fullscreen request failed:', err);
+                });
+            } else {
                 sessionStorage.setItem('dashboard_fullscreen_active', 'true');
-            })
-            .catch((err) => {
-                console.warn('Fullscreen request failed:', err);
-            });
+                syncFullscreenUiState();
+            }
+        }
     } else {
         sessionStorage.removeItem('dashboard_fullscreen_active');
-        if (document.exitFullscreen) {
-            document.exitFullscreen().catch((err) => {
-                console.warn('Exit fullscreen failed:', err);
-            });
+        const exitFn = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+        if (exitFn) {
+            const promise = exitFn.call(doc);
+            if (promise && typeof promise.then === 'function') {
+                promise.then(() => {
+                    syncFullscreenUiState();
+                }).catch((err) => {
+                    console.warn('Exit fullscreen failed:', err);
+                });
+            } else {
+                syncFullscreenUiState();
+            }
         }
     }
 }
@@ -862,15 +874,17 @@ function syncFullscreenUiState() {
     }
 }
 
-// Synchronize header fullscreen button with browser fullscreen status
-document.addEventListener('fullscreenchange', () => {
-    const isFs = Boolean(document.fullscreenElement);
-    if (isFs) {
-        sessionStorage.setItem('dashboard_fullscreen_active', 'true');
-    } else {
-        sessionStorage.removeItem('dashboard_fullscreen_active');
-    }
-    syncFullscreenUiState();
+// Synchronize header fullscreen button with browser fullscreen status across all vendor prefixes
+['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+    document.addEventListener(evt, () => {
+        const isFs = Boolean(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        if (isFs) {
+            sessionStorage.setItem('dashboard_fullscreen_active', 'true');
+        } else {
+            sessionStorage.removeItem('dashboard_fullscreen_active');
+        }
+        syncFullscreenUiState();
+    });
 });
 
 // ============================================================================
@@ -1101,4 +1115,11 @@ function toggleDashboardTheme() {
         );
     }
 }
+
+// Explicit global window bindings for inline HTML onclick triggers
+window.toggleDashboardTheme = toggleDashboardTheme;
+window.syncThemeUi = syncThemeUi;
+window.togglePageFullscreen = togglePageFullscreen;
+window.syncFullscreenUiState = syncFullscreenUiState;
+
 
