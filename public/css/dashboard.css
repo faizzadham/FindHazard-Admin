@@ -341,3 +341,193 @@ body {
 .app-view {
     display: block;
 }
+
+/* ==========================================================================
+   FindHazard VR — Light Mode Theme Specification (Excluded: Login Page)
+   ========================================================================== */
+
+html.light-theme {
+    color-scheme: light;
+}
+
+html.light-theme,
+html.light-theme body {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Atmospheric Glows & Scanline in Light Mode */
+html.light-theme .animate-ambient-orb-1 {
+    background: rgba(245, 158, 11, 0.08);
+}
+
+html.light-theme .animate-ambient-orb-2 {
+    background: rgba(56, 189, 248, 0.06);
+}
+
+html.light-theme .cyber-scanline {
+    opacity: 0.15;
+    background: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.35), rgba(245, 158, 11, 0.45), transparent);
+}
+
+/* Master Glass Sheet in Light Mode */
+html.light-theme .glass-sheet {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(203, 213, 225, 0.9);
+    box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* Glass Cards in Light Mode */
+html.light-theme .glass-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+    color: #0f172a;
+}
+
+html.light-theme .glass-card:hover {
+    border-color: rgba(217, 119, 6, 0.5);
+    box-shadow: 0 10px 25px -4px rgba(217, 119, 6, 0.12);
+}
+
+/* Glass Pills & Inputs */
+html.light-theme .glass-pill {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #92400e;
+}
+
+html.light-theme .glass-input {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+}
+
+html.light-theme .glass-input:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
+
+/* Translucent Dark Card Replacements */
+html.light-theme .glass-sheet [class*="bg-white/"]:not(.keep-bg):not(button.bg-amber-500):not(a.bg-amber-500) {
+    background-color: #f8fafc;
+}
+
+html.light-theme .border-white\/10,
+html.light-theme .border-white\/5,
+html.light-theme .border-white\/\[0\.03\],
+html.light-theme .border-white\/\[0\.04\],
+html.light-theme .border-white\/\[0\.05\],
+html.light-theme .border-white\/\[0\.08\],
+html.light-theme .border-white\/15,
+html.light-theme .border-white\/20 {
+    border-color: #e2e8f0 !important;
+}
+
+/* High-Contrast Typography Adaptations */
+html.light-theme .glass-sheet .text-white:not(button):not(.btn):not([class*="bg-amber"]):not([class*="bg-rose"]):not([class*="bg-emerald"]):not([class*="bg-sky"]):not([class*="bg-indigo"]) {
+    color: #0f172a !important;
+}
+
+html.light-theme .glass-sheet .text-slate-100 {
+    color: #1e293b !important;
+}
+
+html.light-theme .glass-sheet .text-slate-200 {
+    color: #334155 !important;
+}
+
+html.light-theme .glass-sheet .text-slate-300 {
+    color: #475569 !important;
+}
+
+html.light-theme .glass-sheet .text-slate-400 {
+    color: #64748b !important;
+}
+
+html.light-theme .glass-sheet .text-slate-500 {
+    color: #64748b !important;
+}
+
+/* Topbar Navigation in Light Mode */
+html.light-theme #topbar-nav {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+html.light-theme #topbar-nav .nav-item:not([class*="bg-amber-500"]) {
+    color: #475569;
+}
+
+html.light-theme #topbar-nav .nav-item:not([class*="bg-amber-500"]):hover {
+    color: #0f172a;
+    background-color: #e2e8f0;
+}
+
+/* Header Avatar in Light Mode */
+html.light-theme header [title*="Supervisor"] {
+    background-color: #fef3c7;
+    border-color: #fcd34d;
+    color: #b45309;
+}
+
+/* Form Dropdowns & Selects in Light Mode */
+html.light-theme select {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+html.light-theme select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+/* Directory Table in Light Mode */
+html.light-theme table thead tr {
+    background-color: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+html.light-theme table thead th {
+    color: #475569 !important;
+}
+
+html.light-theme table tbody tr {
+    border-bottom-color: #f1f5f9 !important;
+}
+
+html.light-theme table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+/* Toast Notification in Light Mode */
+html.light-theme #toastMessage {
+    background-color: rgba(255, 255, 255, 0.98);
+    border-color: #cbd5e1;
+    color: #0f172a;
+    box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12);
+}
+
+html.light-theme #toastMessage p.text-slate-400 {
+    color: #64748b !important;
+}
+
+/* Score Ring Background Tracks */
+html.light-theme svg path.text-white\/10 {
+    color: #e2e8f0 !important;
+}
+
+/* Holographic Cube Crystals in Light Mode */
+html.light-theme .cube-face {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1.5px solid rgba(217, 119, 6, 0.65);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+/* STRICT EXCLUSION: Ensure Login Page Always Stays Dark */
+html.light-theme #view-login,
+#view-login {
+    color-scheme: dark;
+}
+

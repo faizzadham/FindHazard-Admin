@@ -11,6 +11,17 @@
 
     <!-- Dashboard Stylesheet -->
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+
+    <!-- Theme State Initializer (Zero-Flicker Pre-Render Script) -->
+    <script>
+        (function() {
+            try {
+                if (localStorage.getItem('findhazard_theme') === 'light') {
+                    document.documentElement.classList.add('light-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
 <body class="text-slate-100 min-h-screen relative overflow-x-hidden p-4 sm:p-7 flex flex-col items-center justify-center selection:bg-amber-400 selection:text-neutral-950">
 

@@ -827,6 +827,9 @@ function initSvgScoreRings() {
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. Synchronize Light / Dark Mode Theme
+    syncThemeUi();
+
     // 1. Initialize Animated KPI Counters & Circular Gauges
     initDashboardMetricCounters();
     initSvgScoreRings();
@@ -964,6 +967,7 @@ async function navigateToPage(url, pushToHistory = true) {
         }
 
         // 6. Run Page Initializers for the new section
+        syncThemeUi();
         initDashboardMetricCounters();
         initSvgScoreRings();
 
@@ -1028,3 +1032,83 @@ document.addEventListener('click', (e) => {
 window.addEventListener('popstate', () => {
     navigateToPage(window.location.href, false);
 });
+
+// ============================================================================
+// SECTION 10: LIGHT / DARK MODE THEME ENGINE (LOGO ONLY TOGGLE)
+// ============================================================================
+
+/**
+ * Synchronize the Theme UI (Sun/Moon logo icons) based on current document or localStorage state.
+ */
+function syncThemeUi() {
+    // Strictly exclude the Login page from light mode
+    if (window.location.pathname.includes('/login') || document.getElementById('view-login')) {
+        document.documentElement.classList.remove('light-theme');
+        return;
+    }
+
+    let isLight = false;
+    try {
+        const savedTheme = localStorage.getItem('findhazard_theme');
+        isLight = savedTheme === 'light' || document.documentElement.classList.contains('light-theme');
+    } catch (e) {
+        isLight = document.documentElement.classList.contains('light-theme');
+    }
+
+    if (isLight) {
+        document.documentElement.classList.add('light-theme');
+    } else {
+        document.documentElement.classList.remove('light-theme');
+    }
+
+    const sunIcon = document.getElementById('themeIconSun');
+    const moonIcon = document.getElementById('themeIconMoon');
+    const toggleBtn = document.getElementById('btnThemeToggle');
+
+    if (sunIcon && moonIcon) {
+        if (isLight) {
+            // When in Light mode, hide Sun and show Moon logo (clicking switches to Dark)
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        } else {
+            // When in Dark mode, show Sun and hide Moon logo (clicking switches to Light)
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        }
+    }
+
+    if (toggleBtn) {
+        const titleText = isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+        toggleBtn.setAttribute('title', titleText);
+        toggleBtn.setAttribute('aria-label', titleText);
+    }
+}
+
+/**
+ * Toggle between Dark and Light mode for the entire web page.
+ */
+function toggleDashboardTheme() {
+    // Strictly exclude login page
+    if (window.location.pathname.includes('/login') || document.getElementById('view-login')) {
+        return;
+    }
+
+    const isLight = document.documentElement.classList.toggle('light-theme');
+
+    try {
+        localStorage.setItem('findhazard_theme', isLight ? 'light' : 'dark');
+    } catch (e) {
+        console.warn('[Theme] Could not persist theme preference:', e);
+    }
+
+    syncThemeUi();
+
+    if (typeof showToast === 'function') {
+        showToast(
+            isLight ? 'Light Mode Enabled' : 'Dark Mode Enabled',
+            isLight ? 'Clean high-contrast theme applied across the dashboard.' : 'Tactical dark glass theme restored.',
+            isLight ? '☀️' : '🌙'
+        );
+    }
+}
+

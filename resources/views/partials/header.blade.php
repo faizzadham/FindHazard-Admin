@@ -42,6 +42,23 @@
             <span>{{ now()->timezone('Asia/Kuala_Lumpur')->format('d M Y') }}</span>
         </div>
 
+        <!-- Theme Mode Toggle Button (Logo/Icon Only, No Text) -->
+        <button type="button" 
+                id="btnThemeToggle" 
+                onclick="toggleDashboardTheme()" 
+                class="glass-card hover:bg-white/[0.08] text-slate-300 hover:text-white w-8 h-8 sm:w-9 sm:h-9 rounded-xl transition cursor-pointer flex items-center justify-center border border-white/10 active:scale-95 group shrink-0" 
+                title="Toggle Light / Dark Mode" 
+                aria-label="Toggle Light / Dark Mode">
+            <!-- Sun Logo Icon (Visible in Dark Mode -> Click to activate Light Mode) -->
+            <svg id="themeIconSun" class="w-4 h-4 text-amber-400 group-hover:scale-110 group-hover:rotate-45 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <!-- Moon Logo Icon (Visible in Light Mode -> Click to activate Dark Mode) -->
+            <svg id="themeIconMoon" class="w-4 h-4 text-amber-500 group-hover:scale-110 group-hover:-rotate-12 transition-all hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
+
         <!-- Fullscreen Web Page Toggle Button -->
         <button type="button" 
                 id="btnHeaderFullscreen" 
