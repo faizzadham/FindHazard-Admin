@@ -288,18 +288,18 @@ function renderDirectoryTablePage() {
 
         const wrongClicks = t.wrong_clicks || 0;
         const wrongClicksHtml = wrongClicks > 0
-            ? `<span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="-${wrongClicks * 5}% Penalty applied">
+            ? `<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="-${wrongClicks * 5}% Penalty applied">
                  ${wrongClicks} (-${wrongClicks * 5}%)
                </span>`
-            : `<span class="text-xs font-mono text-slate-500">0</span>`;
+            : `<span class="text-sm font-mono text-slate-400">0</span>`;
 
         const certHtml = t.is_certified
-            ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                  Qualified
                </span>`
-            : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                 <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                 <span class="w-2 h-2 rounded-full bg-rose-400"></span>
                  Retest (&lt;80%)
                </span>`;
 
@@ -307,23 +307,23 @@ function renderDirectoryTablePage() {
         let rankBadge = '';
         if (sortVal === 'top_to_bottom') {
             if (globalRank === 0) {
-                rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-gold text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-amber-400/25" title="Rank 1 - Top Performer">#1</span>`;
+                rankBadge = `<span class="w-7 h-7 rounded-lg medal-shimmer-gold text-amber-200 border text-xs font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-amber-400/25" title="Rank 1 - Top Performer">#1</span>`;
             } else if (globalRank === 1) {
-                rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-silver text-slate-100 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-slate-300/25" title="Rank 2">#2</span>`;
+                rankBadge = `<span class="w-7 h-7 rounded-lg medal-shimmer-silver text-slate-100 border text-xs font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-slate-300/25" title="Rank 2">#2</span>`;
             } else if (globalRank === 2) {
-                rankBadge = `<span class="w-6 h-6 rounded-lg medal-shimmer-bronze text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25" title="Rank 3">#3</span>`;
+                rankBadge = `<span class="w-7 h-7 rounded-lg medal-shimmer-bronze text-amber-200 border text-xs font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25" title="Rank 3">#3</span>`;
             } else {
-                rankBadge = `<span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#${globalRank + 1}</span>`;
+                rankBadge = `<span class="w-7 h-7 rounded-lg glass-card text-xs text-slate-300 font-mono font-bold inline-flex items-center justify-center shrink-0">#${globalRank + 1}</span>`;
             }
         } else {
-            rankBadge = `<span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#${globalRank + 1}</span>`;
+            rankBadge = `<span class="w-7 h-7 rounded-lg glass-card text-xs text-slate-300 font-mono font-bold inline-flex items-center justify-center shrink-0">#${globalRank + 1}</span>`;
         }
 
         const profileLink = `${profileBaseUrl}${t.db_id || t.id}`;
 
         return `
             <tr class="hover:bg-white/[0.03] transition-colors">
-                <td class="p-3.5 font-semibold text-white whitespace-nowrap">
+                <td class="p-3.5 font-bold text-white whitespace-nowrap text-sm sm:text-base">
                     <div class="flex items-center gap-2.5">
                         ${rankBadge}
                         <span class="font-bold text-white font-mono">${t.id}</span>
@@ -352,21 +352,21 @@ function renderDirectoryTablePage() {
                                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 />
                             </svg>
-                            <span class="absolute text-[8.5px] font-mono font-black text-slate-200">
+                            <span class="absolute text-[10px] font-mono font-black text-slate-100">
                                 ${scoreInt}
                             </span>
                         </div>
-                        <span class="font-extrabold font-['JetBrains_Mono'] text-sm ${scTextClass}">
+                        <span class="font-extrabold font-['JetBrains_Mono'] text-base ${scTextClass}">
                             ${scoreFormatted}%
                         </span>
                     </div>
                 </td>
-                <td class="p-3.5 font-mono text-sky-400 font-bold whitespace-nowrap">
+                <td class="p-3.5 font-mono text-sky-400 font-bold whitespace-nowrap text-sm">
                     ${t.time}
                 </td>
                 <!-- Hazards Identified (Found out of 13 in Green) -->
                 <td class="p-3.5 text-center whitespace-nowrap">
-                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-black font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm shadow-emerald-500/10">
+                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-black font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm shadow-emerald-500/10">
                         <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                         </svg>
@@ -375,7 +375,7 @@ function renderDirectoryTablePage() {
                 </td>
                 <!-- Hazards Missed (Missed out of 13 in Red) -->
                 <td class="p-3.5 text-center whitespace-nowrap">
-                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-black font-mono bg-rose-500/15 text-rose-400 border border-rose-500/30 shadow-sm shadow-rose-500/10">
+                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-black font-mono bg-rose-500/15 text-rose-400 border border-rose-500/30 shadow-sm shadow-rose-500/10">
                         <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -391,13 +391,21 @@ function renderDirectoryTablePage() {
                     ${certHtml}
                 </td>
                 <!-- Standard Time Date -->
-                <td class="p-3.5 text-xs text-slate-300 whitespace-nowrap font-mono">
+                <td class="p-3.5 text-sm text-slate-200 whitespace-nowrap font-mono font-medium">
                     ${t.date}
                 </td>
                 <!-- Action / View Profile Button -->
                 <td class="p-3.5 text-center whitespace-nowrap">
-                    <a href="${profileLink}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-400 text-amber-300 hover:text-neutral-950 font-mono font-bold text-xs border border-amber-500/30 transition shadow-sm hover:shadow-amber-500/20 cursor-pointer" title="View ${t.id}'s Personal Profile & Zone Breakdown">
+                    <a href="${profileLink}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-400 text-amber-300 hover:text-neutral-950 font-mono font-bold text-xs sm:text-sm border border-amber-500/30 transition shadow-sm hover:shadow-amber-500/20 cursor-pointer" title="View ${t.id}'s Personal Profile & Zone Breakdown">
                         <span>Profile</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </td>
+            </tr>
+        `;
+    }).join('');
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                         </svg>
@@ -453,25 +461,25 @@ function renderDirectoryPagination(totalItems, displayStart, displayEnd, totalPa
     }
 
     if (startPage > 1) {
-        html += `<button type="button" onclick="goToDirectoryPage(1)" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">1</button>`;
+        html += `<button type="button" onclick="goToDirectoryPage(1)" class="w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-sm cursor-pointer flex items-center justify-center">1</button>`;
         if (startPage > 2) {
-            html += `<span class="px-1 text-slate-500 font-mono text-xs select-none">...</span>`;
+            html += `<span class="px-1 text-slate-400 font-mono text-sm select-none">...</span>`;
         }
     }
 
     for (let p = startPage; p <= endPage; p++) {
         if (p === directoryCurrentPage) {
-            html += `<button type="button" class="w-8 h-8 rounded-xl border border-amber-500/50 bg-amber-500 text-neutral-950 shadow-md shadow-amber-500/20 font-black font-mono text-xs cursor-default flex items-center justify-center">${p}</button>`;
+            html += `<button type="button" class="w-9 h-9 rounded-xl border border-amber-500/50 bg-amber-500 text-neutral-950 shadow-md shadow-amber-500/20 font-black font-mono text-sm cursor-default flex items-center justify-center">${p}</button>`;
         } else {
-            html += `<button type="button" onclick="goToDirectoryPage(${p})" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">${p}</button>`;
+            html += `<button type="button" onclick="goToDirectoryPage(${p})" class="w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-sm cursor-pointer flex items-center justify-center">${p}</button>`;
         }
     }
 
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
-            html += `<span class="px-1 text-slate-500 font-mono text-xs select-none">...</span>`;
+            html += `<span class="px-1 text-slate-400 font-mono text-sm select-none">...</span>`;
         }
-        html += `<button type="button" onclick="goToDirectoryPage(${totalPages})" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">${totalPages}</button>`;
+        html += `<button type="button" onclick="goToDirectoryPage(${totalPages})" class="w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-sm cursor-pointer flex items-center justify-center">${totalPages}</button>`;
     }
 
     pageNumbersContainer.innerHTML = html;
@@ -572,12 +580,12 @@ function loadTraineeDossier(id) {
             }
 
             return `
-                <div class="p-3 rounded-2xl flex justify-between items-center text-xs ${missed ? 'glass-card border-rose-500/30' : 'glass-sheet border-emerald-500/20'}">
+                <div class="p-3.5 rounded-2xl flex justify-between items-center text-sm ${missed ? 'glass-card border-rose-500/30' : 'glass-sheet border-emerald-500/20'}">
                     <div>
-                        <span class="${missed ? 'text-slate-400 line-through' : 'text-slate-200 font-medium'}">${cp.id}. ${cp.name}</span>
-                        <span class="block text-[10px] text-slate-500 font-mono">${cp.cat} &bull; ${cp.time}</span>
+                        <span class="${missed ? 'text-slate-400 line-through' : 'text-slate-200 font-bold'}">${cp.id}. ${cp.name}</span>
+                        <span class="block text-xs text-slate-400 font-mono mt-0.5">${cp.cat} &bull; ${cp.time}</span>
                     </div>
-                    <span class="font-mono text-xs px-2.5 py-1 rounded-lg ${missed ? 'bg-rose-500/10 text-rose-400 font-bold' : 'bg-emerald-500/10 text-emerald-400 font-bold'}">
+                    <span class="font-mono text-xs sm:text-sm px-3 py-1 rounded-lg ${missed ? 'bg-rose-500/10 text-rose-400 font-bold' : 'bg-emerald-500/10 text-emerald-400 font-bold'}">
                         ${missed ? 'MISSED (0%)' : 'IDENTIFIED (+7.7%)'}
                     </span>
                 </div>
@@ -594,39 +602,21 @@ function renderIncomingRunsLog() {
     const container = document.getElementById('incomingRunsContainer');
     if (!container) return;
     container.innerHTML = trainees.slice(0, 4).map(run => `
-        <div class="glass-sheet p-2.5 rounded-2xl flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-amber-400/10 text-amber-400 font-bold flex items-center justify-center text-xs font-mono">
+        <div class="glass-sheet p-3 rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-amber-400/10 text-amber-400 font-bold flex items-center justify-center text-sm font-mono">
                     ${run.id.slice(0, 2).toUpperCase()}
                 </span>
                 <div>
-                    <p class="text-xs font-bold text-slate-200">${run.id}</p>
-                    <p class="text-[9px] text-slate-400 font-mono">${run.found}/13 Spotted &bull; ${run.time}</p>
+                    <p class="text-sm font-bold text-slate-100">${run.id}</p>
+                    <p class="text-xs text-slate-400 font-mono">${run.found}/13 Spotted &bull; ${run.time}</p>
                 </div>
             </div>
-            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold ${run.score >= 90 ? 'text-emerald-400' : 'text-amber-400'}">
+            <span class="px-2.5 py-1 rounded-full text-xs font-mono font-bold ${run.score >= 90 ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'}">
                 ${run.score} pts
             </span>
         </div>
     `).join('');
-}
-
-// ============================================================================
-// SECTION 5: LIVE VR TELEMETRY & WEBRTC MQDH MONITOR
-// ============================================================================
-
-/**
- * Start 100ms increment timer for live session duration tracking.
- */
-function startActiveSessionTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        sessionSeconds += 0.1;
-        const mins = Math.floor(sessionSeconds / 60).toString().padStart(2, '0');
-        const secs = (sessionSeconds % 60).toFixed(1).padStart(4, '0');
-        const el = document.getElementById('liveSessionTimer');
-        if (el) el.innerText = `${mins}:${secs}`;
-    }, 100);
 }
 
 /**
@@ -636,12 +626,12 @@ function renderClickEventFeed() {
     const list = document.getElementById('clickEventFeedList');
     if (!list) return;
     list.innerHTML = clickEventFeed.map(item => `
-        <div class="p-2 rounded-xl text-xs flex items-center justify-between border ${item.type === 'hit' ? 'glass-sheet border-emerald-500/30' : 'glass-sheet border-rose-500/30'}">
+        <div class="p-2.5 rounded-xl text-sm flex items-center justify-between border ${item.type === 'hit' ? 'glass-sheet border-emerald-500/30' : 'glass-sheet border-rose-500/30'}">
             <div>
-                <p class="font-bold text-white text-[11px]">${item.label}</p>
-                <span class="text-[9px] text-slate-400 font-mono">${item.time}</span>
+                <p class="font-bold text-white text-sm">${item.label}</p>
+                <span class="text-xs text-slate-400 font-mono">${item.time}</span>
             </div>
-            <span class="font-mono font-bold text-[10px] ${item.type === 'hit' ? 'text-emerald-400' : 'text-rose-400'}">${item.points}</span>
+            <span class="font-mono font-bold text-xs sm:text-sm ${item.type === 'hit' ? 'text-emerald-400' : 'text-rose-400'}">${item.points}</span>
         </div>
     `).join('');
     const hitEl = document.getElementById('statHazardHits');

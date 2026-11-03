@@ -19,28 +19,28 @@
             <p class="text-xs text-slate-400">Searchable directory and ranked leaderboard with date filters and performance tracking.</p>
         </div>
 
-        <div class="flex items-center gap-2 text-xs font-mono">
-            <span class="text-slate-400">Matched Trainees:</span>
-            <span id="directoryMatchCount" class="font-bold text-amber-400 font-mono text-sm">{{ isset($records) ? count($records) : 0 }}</span>
+        <div class="flex items-center gap-2 text-sm font-mono">
+            <span class="text-slate-300">Matched Trainees:</span>
+            <span id="directoryMatchCount" class="font-bold text-amber-400 font-mono text-base">{{ isset($records) ? count($records) : 0 }}</span>
         </div>
     </div>
 
     <!-- Filter & Leaderboard Controls (Search, Date Filter, Top-to-Bottom Leaderboard, Certificate) -->
-    <div class="glass-sheet p-4 rounded-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-in-up delay-1">
+    <div class="glass-sheet p-5 rounded-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in-up delay-1">
         <!-- 1. Search Trainee -->
-        <div class="space-y-1">
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Search Trainee</label>
+        <div class="space-y-1.5">
+            <label class="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300">Search Trainee</label>
             <div class="relative">
-                <span class="absolute left-3 top-2 text-slate-500 text-xs">🔍</span>
+                <span class="absolute left-3.5 top-2.5 text-slate-400 text-sm">🔍</span>
                 <input id="directorySearchInput" oninput="applyDirectoryFilters()" type="text" placeholder="Worker or username..."
-                    class="w-full glass-card rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 transition font-mono">
+                    class="w-full glass-card rounded-xl pl-9 pr-3.5 py-2 text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition font-mono font-medium">
             </div>
         </div>
 
         <!-- 2. Filter by Date -->
-        <div class="space-y-1">
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Filter by Date</label>
-            <select id="directoryDateFilter" onchange="applyDirectoryFilters()" class="w-full glass-card rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500/50 transition font-mono cursor-pointer">
+        <div class="space-y-1.5">
+            <label class="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300">Filter by Date</label>
+            <select id="directoryDateFilter" onchange="applyDirectoryFilters()" class="w-full glass-card rounded-xl px-3.5 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500/50 transition font-mono font-medium cursor-pointer">
                 <option value="all" class="bg-neutral-900 text-slate-100">📅 All Dates</option>
                 @if(isset($availableDates))
                     @foreach($availableDates as $d)
@@ -51,9 +51,9 @@
         </div>
 
         <!-- 3. Leaderboard Ranking Order (Top to Bottom) -->
-        <div class="space-y-1">
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Ranking</label>
-            <select id="directorySortFilter" onchange="applyDirectoryFilters()" class="w-full glass-card rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500/50 transition font-mono cursor-pointer">
+        <div class="space-y-1.5">
+            <label class="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300">Ranking</label>
+            <select id="directorySortFilter" onchange="applyDirectoryFilters()" class="w-full glass-card rounded-xl px-3.5 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500/50 transition font-mono font-medium cursor-pointer">
                 <option value="top_to_bottom" class="bg-neutral-900 text-amber-300 font-bold" selected>🏆 Top to Bottom (High &rarr; Low)</option>
                 <option value="bottom_to_top" class="bg-neutral-900 text-slate-300">📉 Bottom to Top (Low &rarr; High)</option>
                 <option value="fastest_time" class="bg-neutral-900 text-sky-300">⚡ Fastest Time First</option>
@@ -62,9 +62,9 @@
         </div>
 
         <!-- 4. Filter by Certificate Qualification -->
-        <div class="space-y-1">
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Certificate Status</label>
-            <select id="directoryCertFilter" onchange="applyDirectoryFilters()" class="w-full glass-card rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500/50 transition font-mono cursor-pointer">
+        <div class="space-y-1.5">
+            <label class="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300">Certificate Status</label>
+            <select id="directoryCertFilter" onchange="applyDirectoryFilters()" class="w-full glass-card rounded-xl px-3.5 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500/50 transition font-mono font-medium cursor-pointer">
                 <option value="all" class="bg-neutral-900 text-slate-100">All Statuses</option>
                 <option value="qualified" class="bg-neutral-900 text-emerald-400">✓ Qualified (Pass &ge;80%)</option>
                 <option value="retest" class="bg-neutral-900 text-rose-400">✕ Retest Required (&lt;80%)</option>
@@ -77,7 +77,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-white/[0.02] border-b border-white/10 text-slate-400 text-xs uppercase tracking-wider font-mono">
+                    <tr class="bg-white/[0.02] border-b border-white/10 text-slate-300 text-sm font-bold uppercase tracking-wider font-mono">
                         <th class="p-3.5">Trainee Username</th>
                         <th class="p-3.5">Score</th>
                         <th class="p-3.5">Time</th>
@@ -89,20 +89,20 @@
                         <th class="p-3.5 text-center">Action</th>
                     </tr>
                 </thead>
-                <tbody id="traineeTableBody" class="divide-y divide-white/5 text-slate-300">
+                <tbody id="traineeTableBody" class="divide-y divide-white/5 text-slate-200">
                     @if(isset($records))
                         @forelse($records->take(10) as $idx => $record)
                             <tr class="hover:bg-white/[0.03] transition-colors">
-                                <td class="p-3.5 font-semibold text-white whitespace-nowrap">
+                                <td class="p-3.5 font-bold text-white whitespace-nowrap text-sm sm:text-base">
                                     <div class="flex items-center gap-2.5">
                                         @if($idx === 0)
-                                            <span class="w-6 h-6 rounded-lg medal-shimmer-gold text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-amber-400/25" title="Rank 1 - Top Performer">#1</span>
+                                            <span class="w-7 h-7 rounded-lg medal-shimmer-gold text-amber-200 border text-xs font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-amber-400/25" title="Rank 1 - Top Performer">#1</span>
                                         @elseif($idx === 1)
-                                            <span class="w-6 h-6 rounded-lg medal-shimmer-silver text-slate-100 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-slate-300/25" title="Rank 2">#2</span>
+                                            <span class="w-7 h-7 rounded-lg medal-shimmer-silver text-slate-100 border text-xs font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-slate-300/25" title="Rank 2">#2</span>
                                         @elseif($idx === 2)
-                                            <span class="w-6 h-6 rounded-lg medal-shimmer-bronze text-amber-200 border text-[10px] font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25" title="Rank 3">#3</span>
+                                            <span class="w-7 h-7 rounded-lg medal-shimmer-bronze text-amber-200 border text-xs font-black font-mono inline-flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25" title="Rank 3">#3</span>
                                         @else
-                                            <span class="w-6 h-6 rounded-lg glass-card text-[10px] text-slate-400 font-mono inline-flex items-center justify-center shrink-0">#{{ $idx + 1 }}</span>
+                                            <span class="w-7 h-7 rounded-lg glass-card text-xs text-slate-300 font-mono font-bold inline-flex items-center justify-center shrink-0">#{{ $idx + 1 }}</span>
                                         @endif
                                         <span class="font-bold text-white font-mono">{{ $record->username }}</span>
                                     </div>
@@ -227,49 +227,49 @@
         <!-- Directory Pagination Bar -->
         <div id="directoryPaginationContainer" class="p-4 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white/[0.01]">
             <!-- Left: Showing X to Y of Z trainees -->
-            <div class="text-xs text-slate-400 font-mono flex items-center gap-2">
+            <div class="text-sm text-slate-300 font-mono flex items-center gap-2">
                 <span>Showing</span>
                 <span id="directoryPageRange" class="font-bold text-amber-400">1 – {{ min(10, count($records ?? [])) }}</span>
                 <span>of</span>
                 <span id="directoryTotalCount" class="font-bold text-white">{{ count($records ?? []) }}</span>
                 <span>Trainees</span>
-                <span class="text-slate-600">|</span>
-                <span class="text-slate-400">Page <strong id="directoryCurrentPageNum" class="text-white">1</strong> of <strong id="directoryTotalPagesNum" class="text-white">{{ max(1, (int) ceil(count($records ?? []) / 10)) }}</strong></span>
+                <span class="text-slate-500">|</span>
+                <span class="text-slate-300">Page <strong id="directoryCurrentPageNum" class="text-white font-bold">1</strong> of <strong id="directoryTotalPagesNum" class="text-white font-bold">{{ max(1, (int) ceil(count($records ?? []) / 10)) }}</strong></span>
             </div>
 
             <!-- Right: Pagination Buttons -->
-            <div id="directoryPaginationButtons" class="flex items-center gap-1.5 font-mono text-xs">
+            <div id="directoryPaginationButtons" class="flex items-center gap-2 font-mono text-sm">
                 <!-- Previous Button -->
                 <button type="button" id="btnDirectoryPrev" onclick="changeDirectoryPage(-1)" disabled
-                    class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer flex items-center gap-1 font-bold">
+                    class="px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer flex items-center gap-1 font-bold text-sm">
                     <span>&larr;</span><span>Prev</span>
                 </button>
 
                 <!-- Numbered Page Buttons container -->
-                <div id="directoryPageNumbers" class="flex items-center gap-1">
+                <div id="directoryPageNumbers" class="flex items-center gap-1.5">
                     @php
                         $initTotalPages = max(1, (int) ceil(count($records ?? []) / 10));
                     @endphp
                     @for($p = 1; $p <= min(5, $initTotalPages); $p++)
                         @if($p === 1)
-                            <button type="button" class="w-8 h-8 rounded-xl border border-amber-500/50 bg-amber-500 text-neutral-950 shadow-md shadow-amber-500/20 font-black font-mono text-xs cursor-default flex items-center justify-center">1</button>
+                            <button type="button" class="w-9 h-9 rounded-xl border border-amber-500/50 bg-amber-500 text-neutral-950 shadow-md shadow-amber-500/20 font-black font-mono text-sm cursor-default flex items-center justify-center">1</button>
                         @else
-                            <button type="button" onclick="goToDirectoryPage({{ $p }})" class="w-8 h-8 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-xs cursor-pointer flex items-center justify-center">{{ $p }}</button>
+                            <button type="button" onclick="goToDirectoryPage({{ $p }})" class="w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition font-bold font-mono text-sm cursor-pointer flex items-center justify-center">{{ $p }}</button>
                         @endif
                     @endfor
                 </div>
 
                 <!-- Next Button -->
                 <button type="button" id="btnDirectoryNext" onclick="changeDirectoryPage(1)" {{ count($records ?? []) <= 10 ? 'disabled' : '' }}
-                    class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer flex items-center gap-1 font-bold">
+                    class="px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer flex items-center gap-1 font-bold text-sm">
                     <span>Next</span><span>&rarr;</span>
                 </button>
             </div>
         </div>
 
-        <div class="px-4 py-3 bg-white/[0.02] border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-400">
+        <div class="px-4 py-3 bg-white/[0.02] border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-slate-300">
             <span class="font-mono">🏆 Leaderboard ranked by final inspection score &amp; completion velocity</span>
-            <span class="text-xs text-slate-500 font-mono">Total Recorded Sessions: <strong class="text-slate-300">{{ isset($records) ? count($records) : 0 }}</strong></span>
+            <span class="text-sm text-slate-400 font-mono">Total Recorded Sessions: <strong class="text-slate-200">{{ isset($records) ? count($records) : 0 }}</strong></span>
         </div>
     </div>
 </div>

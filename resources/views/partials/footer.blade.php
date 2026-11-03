@@ -1,13 +1,13 @@
 <!-- Bottom Bar & Holographic Isometric Cube -->
 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
     <div class="md:col-span-3 glass-sheet p-5 rounded-[2rem] space-y-2">
-        <span class="text-xs font-semibold text-slate-400">System Telemetry</span>
-        <div class="text-xs font-bold text-emerald-400 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> All Systems Operational
+        <span class="text-sm font-bold text-slate-300">System Telemetry</span>
+        <div class="text-sm font-black text-emerald-400 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span> All Systems Operational
         </div>
     </div>
     <div class="md:col-span-6 glass-sheet p-5 rounded-[2rem]">
-        <div id="footer-nav" class="grid grid-cols-5 gap-2 text-center text-[10px] font-bold">
+        <div id="footer-nav" class="grid grid-cols-5 gap-2 text-center text-xs sm:text-sm font-bold">
             <a href="{{ route('dashboard.overview') }}" class="glass-card p-2 rounded-xl {{ request()->routeIs('dashboard.overview') ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' : 'text-slate-200 hover:text-white' }} block transition">Overview</a>
             <a href="{{ route('dashboard.monitor') }}" class="glass-card p-2 rounded-xl {{ request()->routeIs('dashboard.monitor') ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' : 'text-slate-200 hover:text-white' }} block transition">VR Monitor</a>
             <a href="{{ route('dashboard.directory') }}" class="glass-card p-2 rounded-xl {{ request()->routeIs('dashboard.directory') ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' : 'text-slate-200 hover:text-white' }} block transition">Directory</a>

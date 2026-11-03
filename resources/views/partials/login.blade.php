@@ -10,28 +10,28 @@
         <h1 class="text-3xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-yellow-500">
             FindHazard VR
         </h1>
-        <p class="text-xs text-slate-400">Supervisor Evaluation Dashboard</p>
+        <p class="text-sm text-slate-300 font-medium">Supervisor Evaluation Dashboard</p>
     </div>
 
     <div class="glass-sheet rounded-3xl p-6 sm:p-8 space-y-5 w-full">
         <form action="{{ route('dashboard.overview') }}" method="GET" class="space-y-4">
             <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">Username</label>
+                <label class="block text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider">Username</label>
                 <input id="loginUsername" type="text" value="supervisor"
-                    class="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none transition font-mono">
+                    class="w-full glass-input rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none transition font-mono">
             </div>
 
             <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">Password</label>
+                <label class="block text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider">Password</label>
                 <input id="loginPassword" type="password" value="admin123"
-                    class="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none transition font-mono">
+                    class="w-full glass-input rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none transition font-mono">
             </div>
 
             <button type="submit" id="loginBtnTrigger"
-                class="w-full mt-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 text-neutral-950 font-black text-xs py-3 rounded-xl transition shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 text-center">
+                class="w-full mt-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 text-neutral-950 font-black text-sm py-3.5 rounded-xl transition shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 text-center">
                 Access Supervisor Portal →
             </button>
         </form>
-        <p class="text-[10px] text-center text-slate-500 font-mono">Default credentials: supervisor / admin123</p>
+        <p class="text-xs text-center text-slate-400 font-mono font-medium">Default credentials: supervisor / admin123</p>
     </div>
 </div>

@@ -5,11 +5,102 @@
 /* Typography & Base */
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
     background: #08090d;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .font-mono {
     font-family: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   Typography Readability Normalizer (Applied Across Dark & Light Modes)
+   ========================================================================== */
+
+/* Universal elevation for small font classes to prevent tiny unreadable text */
+.text-\[8px\],
+.text-\[8\.5px\] {
+    font-size: 11.5px !important;
+    line-height: 1.35 !important;
+    font-weight: 600;
+}
+
+.text-\[9px\],
+.text-\[9\.5px\] {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    font-weight: 600;
+}
+
+.text-\[10px\] {
+    font-size: 12.5px !important;
+    line-height: 1.45 !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.text-\[11px\] {
+    font-size: 13.5px !important;
+    line-height: 1.5 !important;
+    font-weight: 500;
+}
+
+.text-xs {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+}
+
+.text-sm {
+    font-size: 14.5px !important;
+    line-height: 1.55 !important;
+}
+
+.text-base {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+}
+
+/* Form inputs & selects readability boost */
+input, select, textarea {
+    font-size: 14px !important;
+}
+
+/* Table readability */
+table th {
+    font-size: 13px !important;
+    letter-spacing: 0.05em;
+    font-weight: 700 !important;
+}
+
+table td {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+/* Badge text sizing & padding boost for readability */
+[class*="rounded-full"][class*="px-2"],
+[class*="rounded-full"][class*="px-2.5"],
+[class*="rounded-lg"][class*="px-2"],
+[class*="rounded-xl"][class*="px-3"] {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.015em;
+}
+
+/* Dark mode text contrast enhancement */
+:not(.light-theme) .text-slate-400 {
+    color: #94a3b8 !important; /* Brighter slate (Slate 350) for crisp dark mode reading */
+}
+
+:not(.light-theme) .text-slate-500 {
+    color: #cbd5e1 !important; /* Raised from dark grey to light slate for subtexts */
+}
+
+:not(.light-theme) .text-slate-600 {
+    color: #94a3b8 !important;
 }
 
 /* Glassmorphism Components */
@@ -424,29 +515,34 @@ html.light-theme .border-white\/20 {
     border-color: #e2e8f0 !important;
 }
 
-/* High-Contrast Typography Adaptations */
+/* High-Contrast Typography Adaptations for Daytime Light Mode */
 html.light-theme .glass-sheet .text-white:not(button):not(.btn):not([class*="bg-amber"]):not([class*="bg-rose"]):not([class*="bg-emerald"]):not([class*="bg-sky"]):not([class*="bg-indigo"]) {
     color: #0f172a !important;
 }
 
 html.light-theme .glass-sheet .text-slate-100 {
-    color: #1e293b !important;
+    color: #0f172a !important;
+    font-weight: 700;
 }
 
 html.light-theme .glass-sheet .text-slate-200 {
-    color: #334155 !important;
+    color: #0f172a !important;
+    font-weight: 600;
 }
 
 html.light-theme .glass-sheet .text-slate-300 {
-    color: #475569 !important;
+    color: #1e293b !important;
+    font-weight: 600;
 }
 
 html.light-theme .glass-sheet .text-slate-400 {
-    color: #64748b !important;
+    color: #334155 !important;
+    font-weight: 600;
 }
 
 html.light-theme .glass-sheet .text-slate-500 {
-    color: #64748b !important;
+    color: #475569 !important;
+    font-weight: 500;
 }
 
 /* Topbar Navigation in Light Mode */
